@@ -92,6 +92,9 @@ export default function App() {
   const [liveMouthMotion, setLiveMouthMotion] = useState<number>(0);
   const [liveFaceMotion, setLiveFaceMotion] = useState<number>(0);
   
+  // UI Simplicity & Diagnostics Toggle States
+  const [showDiagnostics, setShowDiagnostics] = useState<boolean>(false);
+  const [showHelpGuide, setShowHelpGuide] = useState<boolean>(true);
   // Load initial logs
   useEffect(() => {
     refreshLogs();
@@ -662,50 +665,65 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <View style={styles.tabContent}>
             
-            {/* Systems Onboarding Banner (Explaining exactly what the app is doing) */}
-            <GlassCard 
-              title="Welcome to Aegis Guard 🛡️" 
-              style={{ borderColor: 'rgba(0, 255, 157, 0.3)', shadowColor: Theme.colors.success }}
-            >
-              <Text style={[styles.description, { color: Theme.colors.textWhite, fontSize: 13, fontWeight: 'bold', marginBottom: 8 }]}>
-                Secure, Entirely Offline Facial Attendance & Active Liveness Gateway for Remote Zones
-              </Text>
-              
-              <Text style={styles.description}>
-                This system runs **100% locally on-device** (0% network required) to securely register and verify highway construction workers. It is designed to plug directly into the **NHAI Datalake 3.0** app in zero-connectivity areas.
-              </Text>
-              
-              <Text style={[styles.simulatorHeader, { color: Theme.colors.primary, fontSize: 10, letterSpacing: 0.5, marginBottom: 8, marginTop: 4 }]}>
-                Core Offline Technology Pipeline:
-              </Text>
-              
-              <View style={{ marginBottom: 12 }}>
-                <Text style={styles.bulletItem}>
-                  🤖 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Active Liveness Check</Text>: Performs real-time camera motion analysis via a hidden canvas. Expects you to blink, smile, or turn your head to block printed photos or screen spoof attacks.
-                </Text>
-                <Text style={styles.bulletItem}>
-                  🧬 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>MobileFaceNet Matching</Text>: Generates a 128-dimensional mathematical vector from your face and checks it against enrolled references with high accuracy.
-                </Text>
-                <Text style={styles.bulletItem}>
-                  🔒 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Secure Local Storage</Text>: Saves verified logs locally in an offline queue signed with SHA256 cryptographic hashes.
-                </Text>
-                <Text style={styles.bulletItem}>
-                  📡 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>AWS Sync & Purge</Text>: Continuously monitors cellular connections. When signal returns, uploads logs to AWS and executes a zero-footprint local wipe to safeguard biometric privacy.
-                </Text>
-              </View>
-
-              <View style={{ backgroundColor: 'rgba(0, 212, 255, 0.05)', borderRadius: 8, padding: 10, borderWidth: 1, borderColor: 'rgba(0, 212, 255, 0.15)' }}>
-                <Text style={[styles.syncStatusHeader, { color: Theme.colors.primary, marginBottom: 4 }]}>
-                  🚀 HOW TO TEST THE APP:
-                </Text>
-                <Text style={[styles.description, { marginBottom: 0, fontSize: 11 }]}>
-                  1. Below, select a worker profile & set matching parameters.{"\n"}
-                  2. Click **BOOT SECURE CAMERA GATE** to start.{"\n"}
-                  3. In **CAMERA**, complete the dynamic blinks/smiles tasks in front of your camera.{"\n"}
-                  4. Go to **DATABASE** to see your signed local log, and click **Initiate AWS Sync** to upload and purge your data!
-                </Text>
-              </View>
-            </GlassCard>
+             {/* Systems Onboarding Banner (Explaining exactly what the app is doing) */}
+             <GlassCard 
+               title="Welcome to Aegis Guard 🛡️" 
+               style={{ borderColor: 'rgba(0, 255, 157, 0.3)', shadowColor: Theme.colors.success }}
+               headerRight={
+                 <TouchableOpacity onPress={() => setShowHelpGuide(!showHelpGuide)}>
+                   <Text style={{ color: Theme.colors.primary, fontSize: 10, fontWeight: 'bold', fontFamily: Theme.fonts.mono }}>
+                     {showHelpGuide ? "[ HIDE HELP ]" : "[ SHOW HELP ]"}
+                   </Text>
+                 </TouchableOpacity>
+               }
+             >
+               {showHelpGuide ? (
+                 <>
+                   <Text style={[styles.description, { color: Theme.colors.textWhite, fontSize: 13, fontWeight: 'bold', marginBottom: 8 }]}>
+                     Secure, Entirely Offline Facial Attendance & Active Liveness Gateway for Remote Zones
+                   </Text>
+                   
+                   <Text style={styles.description}>
+                     This system runs **100% locally on-device** (0% network required) to securely register and verify highway construction workers. It is designed to plug directly into the **NHAI Datalake 3.0** app in zero-connectivity areas.
+                   </Text>
+                   
+                   <Text style={[styles.simulatorHeader, { color: Theme.colors.primary, fontSize: 10, letterSpacing: 0.5, marginBottom: 8, marginTop: 4 }]}>
+                     Core Offline Technology Pipeline:
+                   </Text>
+                   
+                   <View style={{ marginBottom: 12 }}>
+                     <Text style={styles.bulletItem}>
+                       🤖 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Active Liveness Check</Text>: Performs real-time camera motion analysis via a hidden canvas. Expects you to blink, smile, or turn your head to block printed photos or screen spoof attacks.
+                     </Text>
+                     <Text style={styles.bulletItem}>
+                       🧬 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>MobileFaceNet Matching</Text>: Generates a 128-dimensional mathematical vector from your face and checks it against enrolled references with high accuracy.
+                     </Text>
+                     <Text style={styles.bulletItem}>
+                       🔒 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Secure Local Storage</Text>: Saves verified logs locally in an offline queue signed with SHA256 cryptographic hashes.
+                     </Text>
+                     <Text style={styles.bulletItem}>
+                       📡 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>AWS Sync & Purge</Text>: Continuously monitors cellular connections. When signal returns, uploads logs to AWS and executes a zero-footprint local wipe to safeguard biometric privacy.
+                     </Text>
+                   </View>
+ 
+                   <View style={{ backgroundColor: 'rgba(0, 212, 255, 0.05)', borderRadius: 8, padding: 10, borderWidth: 1, borderColor: 'rgba(0, 212, 255, 0.15)' }}>
+                     <Text style={[styles.syncStatusHeader, { color: Theme.colors.primary, marginBottom: 4 }]}>
+                       🚀 HOW TO TEST THE APP:
+                     </Text>
+                     <Text style={[styles.description, { marginBottom: 0, fontSize: 11 }]}>
+                       1. Below, select a worker profile & set matching parameters.{"\n"}
+                       2. Click **BOOT SECURE CAMERA GATE** to start.{"\n"}
+                       3. In **CAMERA**, complete the dynamic blinks/smiles tasks in front of your camera.{"\n"}
+                       4. Go to **DATABASE** to see your signed local log, and click **Initiate AWS Sync** to upload and purge your data!
+                     </Text>
+                   </View>
+                 </>
+               ) : (
+                 <Text style={[styles.description, { marginBottom: 0 }]}>
+                   Overview system architecture guide is collapsed. Press [ SHOW HELP ] above to review the quick-start testing steps!
+                 </Text>
+               )}
+             </GlassCard>
 
             {/* Quick Status Bar */}
             <View style={styles.quickGrid}>
@@ -976,139 +994,157 @@ export default function App() {
                 </View>
               </View>
 
-              {/* Real-time Math Feedback Indicators */}
+              {/* Real-time Math Feedback Indicators - Collapsible Diagnostics Accordion to keep the UI clean and simple! */}
               {authState === 'LIVENESS_ACTIVE' && (
-                <View style={styles.livenessFeedbackPanel}>
-                  <Text style={styles.feedbackPanelHeader}>LANDMARK VECTOR TELEMETRY:</Text>
-                  
-                  <MetricMeter 
-                    label="Eye Aspect Ratio (EAR) - Blink" 
-                    value={currentEAR} 
-                    progress={currentEAR < 0.21 ? 1.0 : (0.3 - currentEAR) / 0.1} 
-                    isSatisfied={currentEAR < 0.21}
-                    color={Theme.colors.warning}
-                  />
-
-                  <MetricMeter 
-                    label="Mouth Aspect Ratio (MAR) - Smile" 
-                    value={currentMAR} 
-                    progress={currentMAR > 2.0 ? Math.min(1, (currentMAR - 1.7)/1.1) : 0} 
-                    isSatisfied={currentMAR > 2.75}
-                    color={Theme.colors.success}
-                  />
-
-                  <MetricMeter 
-                    label="Head Yaw (Euler Angle Y) - Turns" 
-                    value={currentYaw} 
-                    progress={Math.abs(currentYaw) / 24} 
-                    isSatisfied={Math.abs(currentYaw) > 18}
-                    color={Theme.colors.primary}
-                    unit="°"
-                  />
-
-                  {Platform.OS === 'web' && (
-                    <View style={{ marginTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.08)', paddingTop: 10 }}>
-                      <Text style={[styles.simulatorHeader, { color: Theme.colors.success, fontSize: 9, letterSpacing: 0.5, marginBottom: 8 }]}>
-                        REAL-TIME COMPUTER VISION SECTOR MOTION:
+                <GlassCard
+                  title="🛠️ Developer Diagnostics & Simulator"
+                  style={{ marginTop: 12, borderColor: 'rgba(0, 212, 255, 0.15)' }}
+                  headerRight={
+                    <TouchableOpacity onPress={() => setShowDiagnostics(!showDiagnostics)}>
+                      <Text style={{ color: Theme.colors.primary, fontSize: 10, fontWeight: 'bold', fontFamily: Theme.fonts.mono }}>
+                        {showDiagnostics ? "[ COLLAPSE ]" : "[ EXPAND DIRECTIVES ]"}
                       </Text>
+                    </TouchableOpacity>
+                  }
+                >
+                  {showDiagnostics ? (
+                    <View style={styles.livenessFeedbackPanel}>
+                      <Text style={styles.feedbackPanelHeader}>LANDMARK VECTOR TELEMETRY:</Text>
                       
                       <MetricMeter 
-                        label="Eye Sector Motion (Blink Target > 6.0)" 
-                        value={liveEyeMotion} 
-                        progress={Math.min(1.0, liveEyeMotion / 6.0)} 
-                        isSatisfied={liveEyeMotion > 6.0}
-                        color="#00D2FF"
+                        label="Eye Aspect Ratio (EAR) - Blink" 
+                        value={currentEAR} 
+                        progress={currentEAR < 0.21 ? 1.0 : (0.3 - currentEAR) / 0.1} 
+                        isSatisfied={currentEAR < 0.21}
+                        color={Theme.colors.warning}
                       />
 
                       <MetricMeter 
-                        label="Mouth Sector Motion (Smile Target > 5.5)" 
-                        value={liveMouthMotion} 
-                        progress={Math.min(1.0, liveMouthMotion / 5.5)} 
-                        isSatisfied={liveMouthMotion > 5.5}
-                        color="#FF00A0"
+                        label="Mouth Aspect Ratio (MAR) - Smile" 
+                        value={currentMAR} 
+                        progress={currentMAR > 2.0 ? Math.min(1, (currentMAR - 1.7)/1.1) : 0} 
+                        isSatisfied={currentMAR > 2.75}
+                        color={Theme.colors.success}
                       />
 
                       <MetricMeter 
-                        label="Face/Head Motion (Turn Target > 7.0)" 
-                        value={liveFaceMotion} 
-                        progress={Math.min(1.0, liveFaceMotion / 7.0)} 
-                        isSatisfied={liveFaceMotion > 7.0}
-                        color="#FFD700"
+                        label="Head Yaw (Euler Angle Y) - Turns" 
+                        value={currentYaw} 
+                        progress={Math.abs(currentYaw) / 24} 
+                        isSatisfied={Math.abs(currentYaw) > 18}
+                        color={Theme.colors.primary}
+                        unit="°"
                       />
-                    </View>
-                  )}
 
-                  {/* Simulator Control Board */}
-                  <View style={styles.simulatorBoard}>
-                    <View style={[GlobalStyles.rowSpaceBetween, { marginBottom: 8, alignItems: 'center' }]}>
-                      <Text style={styles.simulatorHeader}>AI DETECTION PROTOCOL MODE:</Text>
-                      <View style={[GlobalStyles.rowAlign, { alignItems: 'center' }]}>
-                        <Text style={[styles.networkLabel, { color: autoPilotMode ? Theme.colors.success : Theme.colors.primary, marginRight: 6, fontSize: 9 }]}>
-                          {autoPilotMode ? 'AI Auto-Pilot' : 'Manual Inject'}
+                      {Platform.OS === 'web' && (
+                        <View style={{ marginTop: 12, borderTopWidth: 1, borderTopColor: 'rgba(255, 255, 255, 0.08)', paddingTop: 10 }}>
+                          <Text style={[styles.simulatorHeader, { color: Theme.colors.success, fontSize: 9, letterSpacing: 0.5, marginBottom: 8 }]}>
+                            REAL-TIME COMPUTER VISION SECTOR MOTION:
+                          </Text>
+                          
+                          <MetricMeter 
+                            label="Eye Sector Motion (Blink Target > 6.0)" 
+                            value={liveEyeMotion} 
+                            progress={Math.min(1.0, liveEyeMotion / 6.0)} 
+                            isSatisfied={liveEyeMotion > 6.0}
+                            color="#00D2FF"
+                          />
+
+                          <MetricMeter 
+                            label="Mouth Sector Motion (Smile Target > 5.5)" 
+                            value={liveMouthMotion} 
+                            progress={Math.min(1.0, liveMouthMotion / 5.5)} 
+                            isSatisfied={liveMouthMotion > 5.5}
+                            color="#FF00A0"
+                          />
+
+                          <MetricMeter 
+                            label="Face/Head Motion (Turn Target > 7.0)" 
+                            value={liveFaceMotion} 
+                            progress={Math.min(1.0, liveFaceMotion / 7.0)} 
+                            isSatisfied={liveFaceMotion > 7.0}
+                            color="#FFD700"
+                          />
+                        </View>
+                      )}
+
+                      {/* Simulator Control Board */}
+                      <View style={styles.simulatorBoard}>
+                        <View style={[GlobalStyles.rowSpaceBetween, { marginBottom: 8, alignItems: 'center' }]}>
+                          <Text style={styles.simulatorHeader}>AI DETECTION PROTOCOL MODE:</Text>
+                          <View style={[GlobalStyles.rowAlign, { alignItems: 'center' }]}>
+                            <Text style={[styles.networkLabel, { color: autoPilotMode ? Theme.colors.success : Theme.colors.primary, marginRight: 6, fontSize: 9 }]}>
+                              {autoPilotMode ? 'AI Auto-Pilot' : 'Manual Inject'}
+                            </Text>
+                            <Switch
+                              trackColor={{ false: '#1A233D', true: 'rgba(0, 255, 157, 0.2)' }}
+                              thumbColor={autoPilotMode ? Theme.colors.success : Theme.colors.primary}
+                              onValueChange={setAutoPilotMode}
+                              value={autoPilotMode}
+                              style={{ transform: Platform.OS === 'ios' ? [{ scaleX: 0.7 }, { scaleY: 0.7 }] : [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
+                            />
+                          </View>
+                        </View>
+                        
+                        <Text style={styles.simulatorDesc}>
+                          {autoPilotMode 
+                            ? "AI Auto-Pilot is scanning your camera feed... Gesture prompts will automatically satisfy in real-time."
+                            : "Manual mode active. Click below to inject facial landmark matrices or test spoof attacks:"
+                          }
                         </Text>
-                        <Switch
-                          trackColor={{ false: '#1A233D', true: 'rgba(0, 255, 157, 0.2)' }}
-                          thumbColor={autoPilotMode ? Theme.colors.success : Theme.colors.primary}
-                          onValueChange={setAutoPilotMode}
-                          value={autoPilotMode}
-                          style={{ transform: Platform.OS === 'ios' ? [{ scaleX: 0.7 }, { scaleY: 0.7 }] : [{ scaleX: 0.8 }, { scaleY: 0.8 }] }}
-                        />
+                        
+                        <View style={styles.simulatorRow}>
+                          <TouchableOpacity 
+                            style={styles.simBtn} 
+                            onPress={() => handleSimulateAction('BLINK')}
+                            disabled={challenges[activeChallengeIndex] !== 'BLINK'}
+                          >
+                            <Text style={styles.simBtnText}>Blink Eyes</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity 
+                            style={styles.simBtn} 
+                            onPress={() => handleSimulateAction('SMILE')}
+                            disabled={challenges[activeChallengeIndex] !== 'SMILE'}
+                          >
+                            <Text style={styles.simBtnText}>Smile fully</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity 
+                            style={styles.simBtn} 
+                            onPress={() => handleSimulateAction('TURN_LEFT')}
+                            disabled={challenges[activeChallengeIndex] !== 'TURN_LEFT'}
+                          >
+                            <Text style={styles.simBtnText}>Turn Left</Text>
+                          </TouchableOpacity>
+
+                          <TouchableOpacity 
+                            style={styles.simBtn} 
+                            onPress={() => handleSimulateAction('TURN_RIGHT')}
+                            disabled={challenges[activeChallengeIndex] !== 'TURN_RIGHT'}
+                          >
+                            <Text style={styles.simBtnText}>Turn Right</Text>
+                          </TouchableOpacity>
+                        </View>
+
+                        <TouchableOpacity 
+                          style={[styles.simBtnDanger, { marginTop: 8 }]} 
+                          onPress={() => handleSimulateAction('PHOTO_ATTACK')}
+                        >
+                          <Text style={styles.simBtnDangerText}>INJECT STATIC PHOTO SPOOF ATTACK</Text>
+                        </TouchableOpacity>
                       </View>
                     </View>
-                    
-                    <Text style={styles.simulatorDesc}>
-                      {autoPilotMode 
-                        ? "AI Auto-Pilot is scanning your camera feed... Gesture prompts will automatically satisfy in real-time."
-                        : "Manual mode active. Click below to inject facial landmark matrices or test spoof attacks:"
-                      }
+                  ) : (
+                    <Text style={[styles.description, { marginBottom: 0 }]}>
+                      Developer diagnostics, real-time pixel math logs, and manual spoof injection simulators are collapsed to keep your screen simple. Expand above to test custom parameters!
                     </Text>
-                    
-                    <View style={styles.simulatorRow}>
-                      <TouchableOpacity 
-                        style={styles.simBtn} 
-                        onPress={() => handleSimulateAction('BLINK')}
-                        disabled={challenges[activeChallengeIndex] !== 'BLINK'}
-                      >
-                        <Text style={styles.simBtnText}>Blink Eyes</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity 
-                        style={styles.simBtn} 
-                        onPress={() => handleSimulateAction('SMILE')}
-                        disabled={challenges[activeChallengeIndex] !== 'SMILE'}
-                      >
-                        <Text style={styles.simBtnText}>Smile fully</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity 
-                        style={styles.simBtn} 
-                        onPress={() => handleSimulateAction('TURN_LEFT')}
-                        disabled={challenges[activeChallengeIndex] !== 'TURN_LEFT'}
-                      >
-                        <Text style={styles.simBtnText}>Turn Left</Text>
-                      </TouchableOpacity>
-
-                      <TouchableOpacity 
-                        style={styles.simBtn} 
-                        onPress={() => handleSimulateAction('TURN_RIGHT')}
-                        disabled={challenges[activeChallengeIndex] !== 'TURN_RIGHT'}
-                      >
-                        <Text style={styles.simBtnText}>Turn Right</Text>
-                      </TouchableOpacity>
-                    </View>
-
-                    <TouchableOpacity 
-                      style={[styles.simBtnDanger, { marginTop: 8 }]} 
-                      onPress={() => handleSimulateAction('PHOTO_ATTACK')}
-                    >
-                      <Text style={styles.simBtnDangerText}>INJECT STATIC PHOTO SPOOF ATTACK</Text>
-                    </TouchableOpacity>
-                  </View>
-                </View>
+                  )}
+                </GlassCard>
               )}
 
               {/* Authentication Inference Logs Console */}
-              {authTelemetryLogs.length > 0 && (
+              {authState === 'LIVENESS_ACTIVE' && showDiagnostics && authTelemetryLogs.length > 0 && (
                 <View style={styles.consoleBox}>
                   <Text style={styles.consoleHeader}>ON-DEVICE AI PIPELINE INTERNALS:</Text>
                   <ScrollView style={styles.consoleScroll} nestedScrollEnabled={true}>
