@@ -389,7 +389,7 @@ export default function App() {
               let faceCount = 0;
 
               const step = 2; // Downsample by 2 for ultra-fast, lightweight 0.1ms computation
-              const noiseThreshold = 12; // Filter low-level camera sensor noise
+              const noiseThreshold = 8; // Filter low-level camera sensor noise (optimized to 8 for webcams)
 
               for (let y = 40; y < 180; y += step) {
                 for (let x = 40; x < 160; x += step) {
@@ -442,27 +442,27 @@ export default function App() {
               if (!autoPilotMode && !isProcessingGesture.current) {
                 const currentPrompt = challenges[activeChallengeIndex];
                 
-                if (currentPrompt === 'BLINK' && eyeMotion > 6.0) {
+                if (currentPrompt === 'BLINK' && eyeMotion > 5.0) {
                   isProcessingGesture.current = true;
                   setAuthTelemetryLogs(prevLog => [
                     ...prevLog,
-                    `[CV PIPELINE] Physical eye blink gesture detected! Eye Motion Score: ${eyeMotion} > 6.0`
+                    `[CV PIPELINE] Physical eye blink gesture detected! Eye Motion Score: ${eyeMotion} > 5.0`
                   ]);
                   handleSimulateAction('BLINK');
                   setTimeout(() => { isProcessingGesture.current = false; }, 800);
-                } else if (currentPrompt === 'SMILE' && mouthMotion > 5.5) {
+                } else if (currentPrompt === 'SMILE' && mouthMotion > 4.5) {
                   isProcessingGesture.current = true;
                   setAuthTelemetryLogs(prevLog => [
                     ...prevLog,
-                    `[CV PIPELINE] Physical mouth smile gesture detected! Mouth Motion Score: ${mouthMotion} > 5.5`
+                    `[CV PIPELINE] Physical mouth smile gesture detected! Mouth Motion Score: ${mouthMotion} > 4.5`
                   ]);
                   handleSimulateAction('SMILE');
                   setTimeout(() => { isProcessingGesture.current = false; }, 800);
-                } else if ((currentPrompt === 'TURN_LEFT' || currentPrompt === 'TURN_RIGHT') && faceMotion > 7.0) {
+                } else if ((currentPrompt === 'TURN_LEFT' || currentPrompt === 'TURN_RIGHT') && faceMotion > 6.0) {
                   isProcessingGesture.current = true;
                   setAuthTelemetryLogs(prevLog => [
                     ...prevLog,
-                    `[CV PIPELINE] Physical head rotation gesture detected! Face Motion Score: ${faceMotion} > 7.0`
+                    `[CV PIPELINE] Physical head rotation gesture detected! Face Motion Score: ${faceMotion} > 6.0`
                   ]);
                   handleSimulateAction(currentPrompt);
                   setTimeout(() => { isProcessingGesture.current = false; }, 800);
@@ -521,22 +521,22 @@ export default function App() {
 
     // Apply values representing the performed simulated gesture
     if (action === 'BLINK') {
-      landmarks.leftEye = [[10, 10], [12, 10.2], [14, 10.2], [16, 10], [14, 9.8], [12, 9.8]]; // closed (EAR < 0.1)
+      landmarks.leftEye = [[10, 10], [12, 10.2], [14, 10.2], [16, 10], [14, 9.8], [12, 9.8]]; // closed (EAR < 0.24)
       landmarks.rightEye = [[20, 10], [22, 10.2], [24, 10.2], [26, 10], [24, 9.8], [22, 9.8]];
       setCurrentEAR(0.12);
-      logMsg = `[GESTURE] User blinked! Average EAR dropped to 0.12 (Threshold < 0.21)`;
+      logMsg = `[GESTURE] User blinked! Average EAR dropped to 0.12 (Threshold < 0.24)`;
     } else if (action === 'SMILE') {
       landmarks.outerLips = [[10, 10], [23, 10], [15, 9.5], [15, 10.5]]; // stretched lips width=13, height=1, ratio=13.0
-      setCurrentMAR(13.0);
-      logMsg = `[GESTURE] User smiled! MAR stretched to 13.00 (Threshold > 2.75)`;
+      setCurrentMAR(3.20);
+      logMsg = `[GESTURE] User smiled! MAR stretched to 3.20 (Threshold > 2.20)`;
     } else if (action === 'TURN_LEFT') {
-      landmarks.yaw = -24; // left yaw < -18
-      setCurrentYaw(-24);
-      logMsg = `[GESTURE] User turned left! Yaw Euler Y = -24.0° (Threshold < -18°)`;
+      landmarks.yaw = -20; // left yaw < -15
+      setCurrentYaw(-20);
+      logMsg = `[GESTURE] User turned left! Yaw Euler Y = -20.0° (Threshold < -15°)`;
     } else if (action === 'TURN_RIGHT') {
-      landmarks.yaw = 24; // right yaw > 18
-      setCurrentYaw(24);
-      logMsg = `[GESTURE] User turned right! Yaw Euler Y = +24.0° (Threshold > 18°)`;
+      landmarks.yaw = 20; // right yaw > 15
+      setCurrentYaw(20);
+      logMsg = `[GESTURE] User turned right! Yaw Euler Y = +20.0° (Threshold > 15°)`;
     }
 
     setAuthTelemetryLogs(prev => [...prev, logMsg]);
@@ -893,7 +893,13 @@ export default function App() {
                 {authState !== 'IDLE' && Platform.OS === 'web' && (
                   <canvas
                     ref={canvasRef}
-                    style={{ display: 'none' }}
+                    style={{
+                      position: 'absolute',
+                      visibility: 'hidden',
+                      pointerEvents: 'none',
+                      width: 200,
+                      height: 200
+                    }}
                     width={200}
                     height={200}
                   />

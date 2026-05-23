@@ -82,8 +82,8 @@ export const generateChallengeSequence = (length = 3): LivenessChallenge[] => {
 export const evaluateChallengeStep = (
   challenge: LivenessChallenge,
   landmarks: FaceLandmarks,
-  baselineEAR = 0.30,
-  baselineMAR = 2.0
+  baselineEAR = 0.28,
+  baselineMAR = 1.8
 ): { progress: number; isSatisfied: boolean; metricVal: number } => {
   
   switch (challenge) {
@@ -92,9 +92,9 @@ export const evaluateChallengeStep = (
       const rightEAR = calculateEAR(landmarks.rightEye);
       const avgEAR = (leftEAR + rightEAR) / 2.0;
       
-      // A blink is registered when EAR drops significantly (closed eye is < 0.20)
-      const isClosed = avgEAR < 0.21;
-      const progress = isClosed ? 1.0 : Math.max(0, (baselineEAR - avgEAR) / (baselineEAR - 0.2));
+      // A blink is registered when EAR drops significantly (closed eye threshold is optimized to < 0.24 for webcams)
+      const isClosed = avgEAR < 0.24;
+      const progress = isClosed ? 1.0 : Math.max(0, (baselineEAR - avgEAR) / (baselineEAR - 0.24));
       
       return {
         progress,
@@ -105,9 +105,9 @@ export const evaluateChallengeStep = (
     
     case 'SMILE': {
       const currentMAR = calculateMAR(landmarks.outerLips);
-      // A smile stretches the lip corners, increasing the MAR width/height ratio (MAR > 2.8)
-      const smiling = currentMAR > 2.75;
-      const progress = Math.min(1.0, Math.max(0, (currentMAR - baselineMAR) / (2.85 - baselineMAR)));
+      // A smile stretches the lip corners, increasing the MAR width/height ratio (optimized smile threshold to > 2.20)
+      const smiling = currentMAR > 2.20;
+      const progress = Math.min(1.0, Math.max(0, (currentMAR - baselineMAR) / (2.50 - baselineMAR)));
       
       return {
         progress,
@@ -118,9 +118,9 @@ export const evaluateChallengeStep = (
     
     case 'TURN_LEFT': {
       // Yaw rotation in degrees. Positive yaw = head turned right, negative yaw = head turned left.
-      // We check if yaw is significantly negative (e.g. yaw < -18 degrees)
-      const leftTurn = landmarks.yaw < -18;
-      const progress = Math.min(1.0, Math.max(0, -landmarks.yaw / 18));
+      // We check if yaw is significantly negative (optimized head turn threshold to < -15 degrees for field use)
+      const leftTurn = landmarks.yaw < -15;
+      const progress = Math.min(1.0, Math.max(0, -landmarks.yaw / 15));
       
       return {
         progress,
@@ -130,9 +130,9 @@ export const evaluateChallengeStep = (
     }
     
     case 'TURN_RIGHT': {
-      // We check if yaw is significantly positive (e.g. yaw > 18 degrees)
-      const rightTurn = landmarks.yaw > 18;
-      const progress = Math.min(1.0, Math.max(0, landmarks.yaw / 18));
+      // We check if yaw is significantly positive (optimized head turn threshold to > 15 degrees for field use)
+      const rightTurn = landmarks.yaw > 15;
+      const progress = Math.min(1.0, Math.max(0, landmarks.yaw / 15));
       
       return {
         progress,
