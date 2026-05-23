@@ -662,6 +662,51 @@ export default function App() {
         {activeTab === 'dashboard' && (
           <View style={styles.tabContent}>
             
+            {/* Systems Onboarding Banner (Explaining exactly what the app is doing) */}
+            <GlassCard 
+              title="Welcome to Aegis Guard 🛡️" 
+              style={{ borderColor: 'rgba(0, 255, 157, 0.3)', shadowColor: Theme.colors.success }}
+            >
+              <Text style={[styles.description, { color: Theme.colors.textWhite, fontSize: 13, fontWeight: 'bold', marginBottom: 8 }]}>
+                Secure, Entirely Offline Facial Attendance & Active Liveness Gateway for Remote Zones
+              </Text>
+              
+              <Text style={styles.description}>
+                This system runs **100% locally on-device** (0% network required) to securely register and verify highway construction workers. It is designed to plug directly into the **NHAI Datalake 3.0** app in zero-connectivity areas.
+              </Text>
+              
+              <Text style={[styles.simulatorHeader, { color: Theme.colors.primary, fontSize: 10, letterSpacing: 0.5, marginBottom: 8, marginTop: 4 }]}>
+                Core Offline Technology Pipeline:
+              </Text>
+              
+              <View style={{ marginBottom: 12 }}>
+                <Text style={styles.bulletItem}>
+                  🤖 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Active Liveness Check</Text>: Performs real-time camera motion analysis via a hidden canvas. Expects you to blink, smile, or turn your head to block printed photos or screen spoof attacks.
+                </Text>
+                <Text style={styles.bulletItem}>
+                  🧬 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>MobileFaceNet Matching</Text>: Generates a 128-dimensional mathematical vector from your face and checks it against enrolled references with high accuracy.
+                </Text>
+                <Text style={styles.bulletItem}>
+                  🔒 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Secure Local Storage</Text>: Saves verified logs locally in an offline queue signed with SHA256 cryptographic hashes.
+                </Text>
+                <Text style={styles.bulletItem}>
+                  📡 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>AWS Sync & Purge</Text>: Continuously monitors cellular connections. When signal returns, uploads logs to AWS and executes a zero-footprint local wipe to safeguard biometric privacy.
+                </Text>
+              </View>
+
+              <View style={{ backgroundColor: 'rgba(0, 212, 255, 0.05)', borderRadius: 8, padding: 10, borderWidth: 1, borderColor: 'rgba(0, 212, 255, 0.15)' }}>
+                <Text style={[styles.syncStatusHeader, { color: Theme.colors.primary, marginBottom: 4 }]}>
+                  🚀 HOW TO TEST THE APP:
+                </Text>
+                <Text style={[styles.description, { marginBottom: 0, fontSize: 11 }]}>
+                  1. Below, select a worker profile & set matching parameters.{"\n"}
+                  2. Click **BOOT SECURE CAMERA GATE** to start.{"\n"}
+                  3. In **CAMERA**, complete the dynamic blinks/smiles tasks in front of your camera.{"\n"}
+                  4. Go to **DATABASE** to see your signed local log, and click **Initiate AWS Sync** to upload and purge your data!
+                </Text>
+              </View>
+            </GlassCard>
+
             {/* Quick Status Bar */}
             <View style={styles.quickGrid}>
               <GlassCard style={styles.quickCard}>
@@ -1382,11 +1427,13 @@ const styles = StyleSheet.create({
   quickGrid: {
     flexDirection: 'row',
     justifyContent: 'space-between',
-    marginBottom: 4,
+    marginBottom: 16,
+    marginHorizontal: -4,
   },
   quickCard: {
-    width: '31%',
-    padding: 10,
+    flex: 1,
+    marginHorizontal: 4,
+    padding: 8,
     alignItems: 'center',
     justifyContent: 'center',
   },
