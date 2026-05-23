@@ -1,5 +1,5 @@
 // Aegis Guard Cyberpunk Design System
-import { StyleSheet, Dimensions } from 'react-native';
+import { StyleSheet, Dimensions, Platform } from 'react-native';
 
 export const { width: WINDOW_WIDTH, height: WINDOW_HEIGHT } = Dimensions.get('window');
 
@@ -34,6 +34,8 @@ export const GlobalStyles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: Theme.colors.background,
+    height: Platform.OS === 'web' ? WINDOW_HEIGHT : '100%',
+    overflow: 'hidden',
   },
   container: {
     flex: 1,
@@ -82,44 +84,46 @@ export const GlobalStyles = StyleSheet.create({
   },
   // Button Styles
   buttonPrimary: {
-    backgroundColor: 'transparent',
+    backgroundColor: Theme.colors.primary, // Solid Electric Cyan for maximum legibility!
     borderRadius: 8,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: Theme.colors.primary,
     paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: Theme.colors.primary,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
     shadowRadius: 8,
+    elevation: 4,
   },
   buttonPrimaryText: {
-    color: Theme.colors.primary,
+    color: '#070A13', // High-contrast deep dark blue for excellent readability!
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '800',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },
   buttonSuccess: {
-    backgroundColor: 'transparent',
+    backgroundColor: Theme.colors.success, // Solid Cyber Emerald for ultimate positive feedback visibility!
     borderRadius: 8,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderColor: Theme.colors.success,
     paddingVertical: 12,
     paddingHorizontal: 24,
     alignItems: 'center',
     justifyContent: 'center',
     shadowColor: Theme.colors.success,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.3,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
     shadowRadius: 8,
+    elevation: 4,
   },
   buttonSuccessText: {
-    color: Theme.colors.success,
+    color: '#070A13', // High-contrast deep dark blue for excellent readability!
     fontSize: 14,
-    fontWeight: 'bold',
+    fontWeight: '800',
     letterSpacing: 1.5,
     textTransform: 'uppercase',
   },

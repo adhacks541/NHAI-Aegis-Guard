@@ -655,9 +655,10 @@ export default function App() {
       </View>
 
       {/* ----------------------------------------------------
-          Main Layout Scroll / Container
+          Main Layout Scroll / Container (Wrapped to constrain height on Android/iOS)
           ---------------------------------------------------- */}
-      <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
+      <View style={{ flex: 1, minHeight: 0 }}>
+        <ScrollView style={styles.scrollContainer} contentContainerStyle={styles.scrollContent}>
         
         {/* ====================================================
             TAB 1: DASHBOARD VIEW
@@ -677,76 +678,95 @@ export default function App() {
                  </TouchableOpacity>
                }
              >
-               {showHelpGuide ? (
-                 <>
-                   <Text style={[styles.description, { color: Theme.colors.textWhite, fontSize: 13, fontWeight: 'bold', marginBottom: 8 }]}>
-                     Secure, Entirely Offline Facial Attendance & Active Liveness Gateway for Remote Zones
-                   </Text>
-                   
-                   <Text style={styles.description}>
-                     This system runs **100% locally on-device** (0% network required) to securely register and verify highway construction workers. It is designed to plug directly into the **NHAI Datalake 3.0** app in zero-connectivity areas.
-                   </Text>
-                   
-                   <Text style={[styles.simulatorHeader, { color: Theme.colors.primary, fontSize: 10, letterSpacing: 0.5, marginBottom: 8, marginTop: 4 }]}>
-                     Core Offline Technology Pipeline:
-                   </Text>
-                   
-                   <View style={{ marginBottom: 12 }}>
-                     <Text style={styles.bulletItem}>
-                       🤖 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Active Liveness Check</Text>: Performs real-time camera motion analysis via a hidden canvas. Expects you to blink, smile, or turn your head to block printed photos or screen spoof attacks.
-                     </Text>
-                     <Text style={styles.bulletItem}>
-                       🧬 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>MobileFaceNet Matching</Text>: Generates a 128-dimensional mathematical vector from your face and checks it against enrolled references with high accuracy.
-                     </Text>
-                     <Text style={styles.bulletItem}>
-                       🔒 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Secure Local Storage</Text>: Saves verified logs locally in an offline queue signed with SHA256 cryptographic hashes.
-                     </Text>
-                     <Text style={styles.bulletItem}>
-                       📡 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>AWS Sync & Purge</Text>: Continuously monitors cellular connections. When signal returns, uploads logs to AWS and executes a zero-footprint local wipe to safeguard biometric privacy.
-                     </Text>
-                   </View>
- 
-                   <View style={{ backgroundColor: 'rgba(0, 212, 255, 0.05)', borderRadius: 8, padding: 10, borderWidth: 1, borderColor: 'rgba(0, 212, 255, 0.15)' }}>
-                     <Text style={[styles.syncStatusHeader, { color: Theme.colors.primary, marginBottom: 4 }]}>
-                       🚀 HOW TO TEST THE APP:
-                     </Text>
-                     <Text style={[styles.description, { marginBottom: 0, fontSize: 11 }]}>
-                       1. Below, select a worker profile & set matching parameters.{"\n"}
-                       2. Click **BOOT SECURE CAMERA GATE** to start.{"\n"}
-                       3. In **CAMERA**, complete the dynamic blinks/smiles tasks in front of your camera.{"\n"}
-                       4. Go to **DATABASE** to see your signed local log, and click **Initiate AWS Sync** to upload and purge your data!
-                     </Text>
-                   </View>
-                 </>
-               ) : (
-                 <Text style={[styles.description, { marginBottom: 0 }]}>
-                   Overview system architecture guide is collapsed. Press [ SHOW HELP ] above to review the quick-start testing steps!
-                 </Text>
-               )}
+                    {showHelpGuide ? (
+                  <>
+                    <Text style={[styles.description, { color: Theme.colors.textWhite, fontSize: 13, fontWeight: 'bold', marginBottom: 8 }]}>
+                      Secure, 100% Offline Facial Attendance & Active Liveness Gateway
+                    </Text>
+                    
+                    <Text style={[styles.description, { marginBottom: 12 }]}>
+                      This system runs entirely locally on-device (0% connectivity required) to securely register and verify construction workers, perfect for remote highway construction zones.
+                    </Text>
+                    
+                    <Text style={[styles.simulatorHeader, { color: Theme.colors.primary, fontSize: 10, letterSpacing: 0.5, marginBottom: 8 }]}>
+                      SECURE PIPELINE STAGES:
+                    </Text>
+                    
+                    <View style={{ marginBottom: 16 }}>
+                      <View style={styles.pipelineStep}>
+                        <Text style={styles.stepNum}>1</Text>
+                        <View style={styles.stepContent}>
+                          <Text style={styles.stepTitle}>Active Liveness Check</Text>
+                          <Text style={styles.stepDesc}>Runs grayscale sector frame-differencing + landmark EAR/MAR/Yaw math offline to block photo and replay spoofs.</Text>
+                        </View>
+                      </View>
+                      
+                      <View style={styles.pipelineStep}>
+                        <Text style={styles.stepNum}>2</Text>
+                        <View style={styles.stepContent}>
+                          <Text style={styles.stepTitle}>MobileFaceNet Matching</Text>
+                          <Text style={styles.stepDesc}>Quantized INT8 model extracts a 128D mathematical vector crop under 45ms for high-accuracy local matching.</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.pipelineStep}>
+                        <Text style={styles.stepNum}>3</Text>
+                        <View style={styles.stepContent}>
+                          <Text style={styles.stepTitle}>Offline Queue Signing</Text>
+                          <Text style={styles.stepDesc}>Saves verified attendance records inside a local SQLite transaction list signed with SHA256 cryptographic hashes.</Text>
+                        </View>
+                      </View>
+
+                      <View style={styles.pipelineStep}>
+                        <Text style={styles.stepNum}>4</Text>
+                        <View style={styles.stepContent}>
+                          <Text style={styles.stepTitle}>AWS Sync & Biometric Purge</Text>
+                          <Text style={styles.stepDesc}>Automatically tunnels queued logs to AWS on network recovery and wipes local biometric registers to protect privacy.</Text>
+                        </View>
+                      </View>
+                    </View>
+  
+                    <View style={styles.howToTestPanel}>
+                      <Text style={[styles.syncStatusHeader, { color: Theme.colors.primary, marginBottom: 6 }]}>
+                        🚀 QUICK WALKTHROUGH FOR TESTING:
+                      </Text>
+                      <View style={{ gap: 4 }}>
+                        <Text style={styles.howToStepText}>👤 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Step 1</Text>: Select a worker profile card and authentication mode below.</Text>
+                        <Text style={styles.howToStepText}>📸 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Step 2</Text>: Click <Text style={{ color: Theme.colors.primary, fontWeight: 'bold' }}>BOOT SECURE CAMERA GATE</Text>.</Text>
+                        <Text style={styles.howToStepText}>👁️ <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Step 3</Text>: In the <Text style={{ fontWeight: 'bold' }}>CAMERA</Text> tab, complete the dynamic blink, smile, and head turn gestures.</Text>
+                        <Text style={styles.howToStepText}>📡 <Text style={{ color: Theme.colors.textWhite, fontWeight: 'bold' }}>Step 4</Text>: Go to the <Text style={{ fontWeight: 'bold' }}>DATABASE</Text> tab, inspect your signed log, and click <Text style={{ color: Theme.colors.success, fontWeight: 'bold' }}>Initiate AWS Sync</Text>!</Text>
+                      </View>
+                    </View>
+                  </>
+                ) : (
+                  <Text style={[styles.description, { marginBottom: 0 }]}>
+                    Overview system architecture guide is collapsed. Press [ SHOW HELP ] above to review the quick-start testing steps!
+                  </Text>
+                )}
              </GlassCard>
 
-            {/* Quick Status Bar */}
-            <View style={styles.quickGrid}>
-              <GlassCard style={styles.quickCard}>
-                <Text style={styles.metricLabel}>Pending Logs</Text>
-                <Text style={[styles.metricVal, { color: logs.length > 0 ? Theme.colors.warning : Theme.colors.textMuted }]}>
-                  {logs.length}
-                </Text>
-                <StatusPill label={logs.length > 0 ? 'Queued' : 'Synced'} type={logs.length > 0 ? 'warning' : 'success'} />
-              </GlassCard>
+             {/* Quick Status Bar */}
+             <View style={styles.quickGrid}>
+               <GlassCard style={styles.quickCard}>
+                 <Text style={styles.metricLabel}>Pending Logs</Text>
+                 <Text style={[styles.metricVal, { color: logs.length > 0 ? Theme.colors.warning : Theme.colors.textMuted }]}>
+                   {logs.length}
+                 </Text>
+                 <StatusPill label={logs.length > 0 ? 'Queued' : 'Synced'} type={logs.length > 0 ? 'warning' : 'success'} />
+               </GlassCard>
 
-              <GlassCard style={styles.quickCard}>
-                <Text style={styles.metricLabel}>Model Footprint</Text>
-                <Text style={[styles.metricVal, { color: Theme.colors.primary }]}>2.4 MB</Text>
-                <StatusPill label="Quantized" type="primary" />
-              </GlassCard>
+               <GlassCard style={styles.quickCard}>
+                 <Text style={styles.metricLabel}>Model Footprint</Text>
+                 <Text style={[styles.metricVal, { color: Theme.colors.primary }]}>2.4 MB</Text>
+                 <StatusPill label="Quantized" type="primary" />
+               </GlassCard>
 
-              <GlassCard style={styles.quickCard}>
-                <Text style={styles.metricLabel}>Inference Latency</Text>
-                <Text style={[styles.metricVal, { color: Theme.colors.success }]}>&lt;45ms</Text>
-                <StatusPill label="Real-time" type="success" />
-              </GlassCard>
-            </View>
+               <GlassCard style={styles.quickCard}>
+                 <Text style={styles.metricLabel}>Inference Latency</Text>
+                 <Text style={[styles.metricVal, { color: Theme.colors.success }]}>&lt;45ms</Text>
+                 <StatusPill label="Real-time" type="success" />
+               </GlassCard>
+             </View>
 
             {/* Offline Sync Controls */}
             <GlassCard title="AWS Datalake 3.0 Sync Protocol">
@@ -804,27 +824,48 @@ export default function App() {
                 Select an enrolled worker profile below to open the Secure Camera Authenticator. You can configure matching modes to test liveness vs. fraud loops.
               </Text>
 
-              <Text style={styles.fieldLabel}>Select Worker for Scan Simulation:</Text>
-              <View style={styles.pickerContainer}>
-                {personnel.map(staff => (
-                  <TouchableOpacity
-                    key={staff.id}
-                    style={[
-                      styles.pickerItem,
-                      selectedStaff.id === staff.id && styles.pickerItemActive
-                    ]}
-                    onPress={() => setSelectedStaff(staff)}
-                  >
-                    <View style={[styles.avatarDot, { backgroundColor: staff.avatarColor }]} />
-                    <Text style={[
-                      styles.pickerText,
-                      selectedStaff.id === staff.id && styles.pickerTextActive
-                    ]}>
-                      {staff.name} ({staff.role.slice(0, 14)}...)
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
+              <Text style={styles.fieldLabel}>Select Worker Profile (Scroll Horizontal):</Text>
+              <ScrollView 
+                horizontal 
+                showsHorizontalScrollIndicator={false}
+                style={{ marginBottom: 16 }}
+                contentContainerStyle={{ paddingVertical: 4, paddingHorizontal: 2 }}
+              >
+                {personnel.map(staff => {
+                  const initials = staff.name.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase();
+                  const isActive = selectedStaff.id === staff.id;
+                  return (
+                    <TouchableOpacity
+                      key={staff.id}
+                      style={[
+                        styles.profileCard,
+                        isActive && styles.profileCardActive
+                      ]}
+                      onPress={() => setSelectedStaff(staff)}
+                    >
+                      <View style={[styles.avatarCircleLarge, { backgroundColor: staff.avatarColor || '#3B8BD4' }]}>
+                        <Text style={styles.avatarTextLarge}>{initials}</Text>
+                        {isActive && <View style={styles.activeDotBadge} />}
+                      </View>
+                      
+                      <Text style={[
+                        styles.profileCardName,
+                        isActive && styles.profileCardNameActive
+                      ]} numberOfLines={1}>
+                        {staff.name}
+                      </Text>
+                      
+                      <Text style={styles.profileCardRole} numberOfLines={1}>
+                        {staff.role}
+                      </Text>
+                      
+                      <View style={styles.profileCardBadge}>
+                        <Text style={styles.profileCardBadgeText}>ENROLLED</Text>
+                      </View>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
 
               <Text style={styles.fieldLabel}>Authentication Verification Mode:</Text>
               <View style={GlobalStyles.rowAlign}>
@@ -943,6 +984,11 @@ export default function App() {
                   authState === 'FAILED' && styles.faceBorderFailed,
                   { zIndex: 5 }
                 ]}>
+                  {/* High-fidelity sci-fi biometric HUD brackets */}
+                  <View style={[styles.hudCorner, styles.hudTopLeft, authState === 'SUCCESS' && styles.hudSuccess, authState === 'FAILED' && styles.hudFailed]} />
+                  <View style={[styles.hudCorner, styles.hudTopRight, authState === 'SUCCESS' && styles.hudSuccess, authState === 'FAILED' && styles.hudFailed]} />
+                  <View style={[styles.hudCorner, styles.hudBottomLeft, authState === 'SUCCESS' && styles.hudSuccess, authState === 'FAILED' && styles.hudFailed]} />
+                  <View style={[styles.hudCorner, styles.hudBottomRight, authState === 'SUCCESS' && styles.hudSuccess, authState === 'FAILED' && styles.hudFailed]} />
                   {/* Landmark Points Simulation */}
                   {authState === 'LIVENESS_ACTIVE' && (
                     <View style={styles.landmarksContainer}>
@@ -952,15 +998,6 @@ export default function App() {
                       <View style={[styles.gridDot, { top: '50%', left: '49%' }]} />
                       <View style={[styles.gridDot, { top: '65%', left: '36%' }]} />
                       <View style={[styles.gridDot, { top: '65%', right: '36%' }]} />
-                    </View>
-                  )}
-                  
-                  {/* Camera prompt notifications */}
-                  {authState === 'LIVENESS_ACTIVE' && (
-                    <View style={styles.interactiveBubble}>
-                      <Text style={styles.bubbleTitle}>LIVENESS CHALLENGE:</Text>
-                      <Text style={styles.bubbleAction}>{getStepText(challenges[activeChallengeIndex])}</Text>
-                      <Text style={styles.stepIndicator}>Step {activeChallengeIndex + 1} of 3</Text>
                     </View>
                   )}
 
@@ -998,6 +1035,15 @@ export default function App() {
                     </TouchableOpacity>
                   )}
                 </View>
+
+                {/* Camera prompt notifications (Rendered as sibling of grid, inside cameraWindow, safely bottom positioned) */}
+                {authState === 'LIVENESS_ACTIVE' && (
+                  <View style={styles.interactiveBubble}>
+                    <Text style={styles.bubbleTitle}>LIVENESS CHALLENGE:</Text>
+                    <Text style={styles.bubbleAction}>{getStepText(challenges[activeChallengeIndex])}</Text>
+                    <Text style={styles.stepIndicator}>Step {activeChallengeIndex + 1} of 3</Text>
+                  </View>
+                )}
               </View>
 
               {/* Real-time Math Feedback Indicators - Collapsible Diagnostics Accordion to keep the UI clean and simple! */}
@@ -1101,35 +1147,59 @@ export default function App() {
                         
                         <View style={styles.simulatorRow}>
                           <TouchableOpacity 
-                            style={styles.simBtn} 
+                            style={[
+                              styles.simBtn,
+                              challenges[activeChallengeIndex] === 'BLINK' && styles.simBtnActive
+                            ]} 
                             onPress={() => handleSimulateAction('BLINK')}
                             disabled={challenges[activeChallengeIndex] !== 'BLINK'}
                           >
-                            <Text style={styles.simBtnText}>Blink Eyes</Text>
+                            <Text style={[
+                              styles.simBtnText,
+                              challenges[activeChallengeIndex] === 'BLINK' && styles.simBtnActiveText
+                            ]}>Blink Eyes</Text>
                           </TouchableOpacity>
 
                           <TouchableOpacity 
-                            style={styles.simBtn} 
+                            style={[
+                              styles.simBtn,
+                              challenges[activeChallengeIndex] === 'SMILE' && styles.simBtnActive
+                            ]} 
                             onPress={() => handleSimulateAction('SMILE')}
                             disabled={challenges[activeChallengeIndex] !== 'SMILE'}
                           >
-                            <Text style={styles.simBtnText}>Smile fully</Text>
+                            <Text style={[
+                              styles.simBtnText,
+                              challenges[activeChallengeIndex] === 'SMILE' && styles.simBtnActiveText
+                            ]}>Smile fully</Text>
                           </TouchableOpacity>
 
                           <TouchableOpacity 
-                            style={styles.simBtn} 
+                            style={[
+                              styles.simBtn,
+                              challenges[activeChallengeIndex] === 'TURN_LEFT' && styles.simBtnActive
+                            ]} 
                             onPress={() => handleSimulateAction('TURN_LEFT')}
                             disabled={challenges[activeChallengeIndex] !== 'TURN_LEFT'}
                           >
-                            <Text style={styles.simBtnText}>Turn Left</Text>
+                            <Text style={[
+                              styles.simBtnText,
+                              challenges[activeChallengeIndex] === 'TURN_LEFT' && styles.simBtnActiveText
+                            ]}>Turn Left</Text>
                           </TouchableOpacity>
 
                           <TouchableOpacity 
-                            style={styles.simBtn} 
+                            style={[
+                              styles.simBtn,
+                              challenges[activeChallengeIndex] === 'TURN_RIGHT' && styles.simBtnActive
+                            ]} 
                             onPress={() => handleSimulateAction('TURN_RIGHT')}
                             disabled={challenges[activeChallengeIndex] !== 'TURN_RIGHT'}
                           >
-                            <Text style={styles.simBtnText}>Turn Right</Text>
+                            <Text style={[
+                              styles.simBtnText,
+                              challenges[activeChallengeIndex] === 'TURN_RIGHT' && styles.simBtnActiveText
+                            ]}>Turn Right</Text>
                           </TouchableOpacity>
                         </View>
 
@@ -1163,10 +1233,10 @@ export default function App() {
 
               {authState !== 'IDLE' && (
                 <TouchableOpacity 
-                  style={[GlobalStyles.buttonPrimary, { marginTop: 12, borderColor: Theme.colors.textMuted }]}
+                  style={styles.btnSecondary}
                   onPress={() => setAuthState('IDLE')}
                 >
-                  <Text style={[GlobalStyles.buttonPrimaryText, { color: Theme.colors.textMuted }]}>Reset Authenticator</Text>
+                  <Text style={styles.btnSecondaryText}>Reset Authenticator</Text>
                 </TouchableOpacity>
               )}
             </GlassCard>
@@ -1330,34 +1400,36 @@ export default function App() {
               <Text style={styles.telemetrySectionHeader}>PERFORMANCE BENCHMARKS</Text>
 
               <View style={styles.telemetryDetailRow}>
-                <Text style={styles.telemetryLabel}>Benchmark Metric</Text>
-                <Text style={styles.telemetryLabel}>Datalake Goal</Text>
-                <Text style={styles.telemetryLabel}>Aegis Actuals</Text>
+                <Text style={styles.telemetryColLabelBold}>Benchmark Metric</Text>
+                <Text style={styles.telemetryColGoalBold}>Datalake Goal</Text>
+                <Text style={styles.telemetryColActualBold}>Aegis Actuals</Text>
               </View>
               <View style={styles.telemetryDivider} />
               
               <View style={styles.telemetryDetailRow}>
-                <Text style={styles.telemetryLabel}>Face Detection Frame Processing</Text>
-                <Text style={styles.telemetryValueMuted}>N/A</Text>
-                <Text style={styles.telemetryValueSuccess}>&lt; 14ms</Text>
+                <Text style={styles.telemetryColLabel}>Face Detection Frame Processing</Text>
+                <Text style={styles.telemetryColGoal}>N/A</Text>
+                <Text style={styles.telemetryColActual}>&lt; 14ms</Text>
               </View>
               
               <View style={styles.telemetryDetailRow}>
-                <Text style={styles.telemetryLabel}>Liveness Active Validation</Text>
-                <Text style={styles.telemetryValueMuted}>N/A</Text>
-                <Text style={styles.telemetryValueSuccess}>&lt; 5ms</Text>
+                <Text style={styles.telemetryColLabel}>Liveness Active Validation</Text>
+                <Text style={styles.telemetryColGoal}>N/A</Text>
+                <Text style={styles.telemetryColActual}>&lt; 5ms</Text>
               </View>
 
               <View style={styles.telemetryDetailRow}>
-                <Text style={styles.telemetryLabel}>MobileFaceNet 128D Embedding</Text>
-                <Text style={styles.telemetryValueMuted}>N/A</Text>
-                <Text style={styles.telemetryValueSuccess}>&lt; 42ms</Text>
+                <Text style={styles.telemetryColLabel}>MobileFaceNet 128D Embedding</Text>
+                <Text style={styles.telemetryColGoal}>N/A</Text>
+                <Text style={styles.telemetryColActual}>&lt; 42ms</Text>
               </View>
 
+              <View style={styles.telemetryDivider} />
+
               <View style={styles.telemetryDetailRow}>
-                <Text style={styles.telemetryLabelBold}>Total Authentication Loop</Text>
-                <Text style={styles.telemetryValueBoldMuted}>&lt; 1.00s</Text>
-                <Text style={styles.telemetryValueBoldSuccess}>&lt; 0.08s (80ms)</Text>
+                <Text style={styles.telemetryColLabelBold}>Total Authentication Loop</Text>
+                <Text style={styles.telemetryColGoalBold}>&lt; 1.00s</Text>
+                <Text style={styles.telemetryColActualBoldSuccess}>&lt; 0.08s (80ms)</Text>
               </View>
             </GlassCard>
 
@@ -1383,17 +1455,20 @@ export default function App() {
           </View>
         )}
 
-      </ScrollView>
+        </ScrollView>
+      </View>
 
       {/* ----------------------------------------------------
-          Futuristic Cyber-Tab Navigation Bar
+          Futuristic Floating Glassmorphic Navigation Dock
           ---------------------------------------------------- */}
       <View style={styles.navBar}>
         <TouchableOpacity 
           style={[styles.navItem, activeTab === 'dashboard' && styles.navItemActive]}
           onPress={() => setActiveTab('dashboard')}
         >
+          <Text style={[styles.navIconText, activeTab === 'dashboard' ? styles.navIconTextActive : styles.navIconTextInactive]}>❖</Text>
           <Text style={[styles.navText, activeTab === 'dashboard' && styles.navTextActive]}>GATEWAY</Text>
+          {activeTab === 'dashboard' && <View style={styles.navActiveIndicator} />}
         </TouchableOpacity>
 
         <TouchableOpacity 
@@ -1403,21 +1478,27 @@ export default function App() {
             startAuthSession();
           }}
         >
+          <Text style={[styles.navIconText, activeTab === 'camera' ? styles.navIconTextActive : styles.navIconTextInactive]}>⌖</Text>
           <Text style={[styles.navText, activeTab === 'camera' && styles.navTextActive]}>CAMERA</Text>
+          {activeTab === 'camera' && <View style={styles.navActiveIndicator} />}
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.navItem, activeTab === 'database' && styles.navItemActive]}
           onPress={() => setActiveTab('database')}
         >
+          <Text style={[styles.navIconText, activeTab === 'database' ? styles.navIconTextActive : styles.navIconTextInactive]}>▤</Text>
           <Text style={[styles.navText, activeTab === 'database' && styles.navTextActive]}>DATABASE</Text>
+          {activeTab === 'database' && <View style={styles.navActiveIndicator} />}
         </TouchableOpacity>
 
         <TouchableOpacity 
           style={[styles.navItem, activeTab === 'telemetry' && styles.navItemActive]}
           onPress={() => setActiveTab('telemetry')}
         >
+          <Text style={[styles.navIconText, activeTab === 'telemetry' ? styles.navIconTextActive : styles.navIconTextInactive]}>⌬</Text>
           <Text style={[styles.navText, activeTab === 'telemetry' && styles.navTextActive]}>SPECS</Text>
+          {activeTab === 'telemetry' && <View style={styles.navActiveIndicator} />}
         </TouchableOpacity>
       </View>
 
@@ -1453,7 +1534,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     padding: 16,
-    paddingBottom: 40,
+    paddingBottom: 110, // Safe bottom clearance so content scrolls completely past the absolute tab bar!
   },
   tabContent: {
     width: '100%',
@@ -1632,14 +1713,20 @@ const styles = StyleSheet.create({
   },
   interactiveBubble: {
     position: 'absolute',
-    bottom: -60,
+    bottom: 12, // Positioned safely inside the camera window
     backgroundColor: 'rgba(7, 10, 19, 0.95)',
-    borderRadius: 8,
-    padding: 8,
-    borderWidth: 1,
+    borderRadius: 10,
+    paddingVertical: 8,
+    paddingHorizontal: 16,
+    borderWidth: 1.5,
     borderColor: Theme.colors.primary,
     alignItems: 'center',
-    width: 200,
+    width: '85%', // Make it wider and highly visible!
+    shadowColor: Theme.colors.primary,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.3,
+    shadowRadius: 6,
+    elevation: 5,
     zIndex: 15,
   },
   bubbleTitle: {
@@ -1721,17 +1808,22 @@ const styles = StyleSheet.create({
     fontWeight: '500',
   },
   bootSessionBtn: {
-    backgroundColor: 'transparent',
+    backgroundColor: Theme.colors.primary, // Solid Electric Cyan background!
     borderColor: Theme.colors.primary,
-    borderWidth: 1.5,
+    borderWidth: 1,
     borderRadius: 30,
-    paddingVertical: 10,
-    paddingHorizontal: 20,
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    shadowColor: Theme.colors.primary,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 4,
   },
   bootSessionBtnText: {
-    color: Theme.colors.primary,
-    fontSize: 11,
-    fontWeight: 'bold',
+    color: '#070A13', // High-contrast dark void text!
+    fontSize: 12,
+    fontWeight: '800',
     letterSpacing: 1.5,
     fontFamily: Theme.fonts.mono,
   },
@@ -1778,36 +1870,72 @@ const styles = StyleSheet.create({
     marginTop: 6,
   },
   simBtn: {
-    backgroundColor: Theme.colors.cardBg,
-    borderColor: Theme.colors.primary,
+    backgroundColor: 'rgba(255, 255, 255, 0.01)',
+    borderColor: 'rgba(255, 255, 255, 0.08)',
     borderWidth: 1,
     borderRadius: 4,
-    paddingVertical: 6,
+    paddingVertical: 8,
     paddingHorizontal: 8,
     flex: 1,
     marginHorizontal: 2,
     alignItems: 'center',
+    opacity: 0.4, // Dimmed when disabled
+  },
+  simBtnActive: {
+    backgroundColor: 'rgba(0, 212, 255, 0.18)', // Glowing cyan background when active!
+    borderColor: Theme.colors.primary,
+    borderWidth: 1.5,
+    opacity: 1.0, // Fully visible when active!
   },
   simBtnText: {
     fontSize: 9,
-    fontWeight: 'bold',
+    fontWeight: '600',
+    color: Theme.colors.textMuted,
+  },
+  simBtnActiveText: {
     color: Theme.colors.primary,
+    fontWeight: '800',
+    textShadowColor: Theme.colors.primary,
+    textShadowRadius: 4,
   },
   simBtnDanger: {
-    backgroundColor: 'rgba(255, 0, 122, 0.1)',
+    backgroundColor: Theme.colors.danger, // Solid Cyber Hot Pink for heavy warning prominence!
     borderColor: Theme.colors.danger,
-    borderWidth: 1.5,
-    borderRadius: 4,
-    paddingVertical: 8,
+    borderWidth: 1,
+    borderRadius: 6,
+    paddingVertical: 10,
     alignItems: 'center',
     width: '100%',
+    shadowColor: Theme.colors.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 8,
+    elevation: 4,
   },
   simBtnDangerText: {
-    fontSize: 10,
-    fontWeight: 'bold',
-    color: Theme.colors.danger,
+    fontSize: 11,
+    fontWeight: '800',
+    color: '#070A13', // High-contrast dark void text!
     fontFamily: Theme.fonts.mono,
     letterSpacing: 1,
+  },
+  btnSecondary: {
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.15)',
+    paddingVertical: 12,
+    paddingHorizontal: 24,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 12,
+  },
+  btnSecondaryText: {
+    color: Theme.colors.textMuted,
+    fontSize: 13,
+    fontWeight: '700',
+    letterSpacing: 1.5,
+    textTransform: 'uppercase',
   },
 
   // Consoles
@@ -1887,34 +2015,35 @@ const styles = StyleSheet.create({
   },
   modeBtn: {
     flex: 1,
-    backgroundColor: 'rgba(255,255,255,0.03)',
-    borderColor: 'rgba(255,255,255,0.05)',
+    backgroundColor: 'rgba(255, 255, 255, 0.04)',
+    borderColor: 'rgba(255, 255, 255, 0.12)',
     borderWidth: 1,
     borderRadius: 8,
-    paddingVertical: 8,
+    paddingVertical: 10,
     alignItems: 'center',
     marginRight: 6,
   },
   modeBtnActive: {
     borderColor: Theme.colors.primary,
-    backgroundColor: 'rgba(0, 212, 255, 0.05)',
+    backgroundColor: Theme.colors.primary, // Solid Electric Cyan background!
   },
   modeBtnActiveDanger: {
     borderColor: Theme.colors.danger,
-    backgroundColor: 'rgba(255, 0, 122, 0.05)',
+    backgroundColor: Theme.colors.danger, // Solid Cyber Hot Pink background!
   },
   modeBtnText: {
-    fontSize: 11,
+    fontSize: 12,
     color: Theme.colors.textMuted,
-    fontWeight: '500',
+    fontWeight: '600',
+    fontFamily: Theme.fonts.sans,
   },
   modeBtnTextActive: {
-    color: Theme.colors.primary,
-    fontWeight: 'bold',
+    color: '#070A13', // Deep Void Black for ultimate high-contrast readability!
+    fontWeight: '800',
   },
   modeBtnTextActiveDanger: {
-    color: Theme.colors.danger,
-    fontWeight: 'bold',
+    color: '#070A13', // Deep Void Black for ultimate high-contrast readability!
+    fontWeight: '800',
   },
 
   // Database Screen Styling
@@ -2103,32 +2232,301 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
 
-  // Cyber Navigation bar
+  // Floating Glassmorphic Navigation Dock
   navBar: {
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    right: 0,
     flexDirection: 'row',
-    height: 52,
-    borderTopWidth: 1.5,
-    borderTopColor: '#131A30',
-    backgroundColor: '#070A13',
+    height: 70, // Spacious premium touch target height
+    borderWidth: 2,
+    borderColor: 'rgba(0, 212, 255, 0.45)', // Vibrantly glowing Electric Cyan cyber border!
+    backgroundColor: '#121929', // Beautiful solid dark-blue slate background that pops against the void bg!
+    marginHorizontal: 16,
+    marginBottom: Platform.OS === 'ios' ? 28 : (Platform.OS === 'android' ? 24 : 16), // Elevates floating dock perfectly above physical gesture pills and system softkeys!
+    borderRadius: 22,
+    shadowColor: Theme.colors.primary,
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.25,
+    shadowRadius: 10,
+    elevation: 10,
+    alignItems: 'center',
+    justifyContent: 'space-around',
+    zIndex: 100, // Anchored on top of all elements!
   },
   navItem: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    paddingVertical: 6,
   },
   navItemActive: {
-    borderTopWidth: 2,
-    borderTopColor: Theme.colors.primary,
-    backgroundColor: 'rgba(0, 212, 255, 0.02)',
+    backgroundColor: 'rgba(0, 212, 255, 0.08)',
   },
   navText: {
-    fontSize: 10,
+    fontSize: 9,
     fontWeight: 'bold',
-    color: Theme.colors.textMuted,
+    color: 'rgba(255, 255, 255, 0.65)', // High-contrast crisp off-white for unselected text!
     fontFamily: Theme.fonts.mono,
     letterSpacing: 1,
+    marginTop: 2,
   },
   navTextActive: {
+    color: Theme.colors.primary, // Vibrant glowing Neon Electric Cyan!
+    fontWeight: '800',
+  },
+  navIconText: {
+    fontSize: 18, // Enlarged for high-fidelity vector glyph visibility!
+    fontFamily: Theme.fonts.sans,
+  },
+  navIconTextActive: {
+    color: Theme.colors.primary, // Neon Electric Cyan!
+    textShadowColor: Theme.colors.primary,
+    textShadowRadius: 8,
+    textShadowOffset: { width: 0, height: 0 },
+  },
+  navIconTextInactive: {
+    color: '#FFFFFF', // Pure, solid high-contrast white for inactive state vectors!
+    opacity: 0.85,
+  },
+  navActiveIndicator: {
+    position: 'absolute',
+    bottom: 6, // Slightly elevated
+    width: 6,
+    height: 6,
+    borderRadius: 3,
+    backgroundColor: Theme.colors.primary,
+    shadowColor: Theme.colors.primary,
+    shadowRadius: 4,
+    shadowOpacity: 0.8,
+  },
+
+  // Beautiful Aligned Telemetry Column Tables
+  telemetryColLabel: {
+    flex: 2.2,
+    fontSize: 12,
+    color: Theme.colors.textMuted,
+  },
+  telemetryColGoal: {
+    flex: 1,
+    fontSize: 12,
+    color: Theme.colors.textMuted,
+    textAlign: 'center',
+  },
+  telemetryColActual: {
+    flex: 1.2,
+    fontSize: 12,
+    color: Theme.colors.success,
+    fontFamily: Theme.fonts.mono,
+    fontWeight: 'bold',
+    textAlign: 'right',
+  },
+  telemetryColLabelBold: {
+    flex: 2.2,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: Theme.colors.textWhite,
+  },
+  telemetryColGoalBold: {
+    flex: 1,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: Theme.colors.textWhite,
+    textAlign: 'center',
+  },
+  telemetryColActualBold: {
+    flex: 1.2,
+    fontSize: 12,
+    fontWeight: 'bold',
     color: Theme.colors.primary,
+    fontFamily: Theme.fonts.mono,
+    textAlign: 'right',
+  },
+  telemetryColActualBoldSuccess: {
+    flex: 1.2,
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: Theme.colors.success,
+    fontFamily: Theme.fonts.mono,
+    textAlign: 'right',
+  },
+
+  // Premium Worker Selection Cards
+  profileCard: {
+    width: 130,
+    backgroundColor: 'rgba(255,255,255,0.02)',
+    borderColor: 'rgba(255,255,255,0.06)',
+    borderWidth: 1,
+    borderRadius: 12,
+    padding: 12,
+    alignItems: 'center',
+    marginRight: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 3,
+  },
+  profileCardActive: {
+    borderColor: Theme.colors.primary,
+    backgroundColor: 'rgba(0, 212, 255, 0.05)',
+    shadowColor: Theme.colors.primary,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+  },
+  avatarCircleLarge: {
+    width: 44,
+    height: 44,
+    borderRadius: 22,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 8,
+    position: 'relative',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.4,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  avatarTextLarge: {
+    color: '#FFFFFF',
+    fontSize: 15,
+    fontWeight: 'bold',
+    fontFamily: Theme.fonts.mono,
+  },
+  activeDotBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+    backgroundColor: Theme.colors.success,
+    borderWidth: 1.5,
+    borderColor: '#0C101A',
+  },
+  profileCardName: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Theme.colors.textMuted,
+    textAlign: 'center',
+    marginBottom: 2,
+    width: '100%',
+  },
+  profileCardNameActive: {
+    color: Theme.colors.textWhite,
+  },
+  profileCardRole: {
+    fontSize: 9,
+    color: Theme.colors.textMuted,
+    textAlign: 'center',
+    marginBottom: 6,
+    width: '100%',
+    fontFamily: Theme.fonts.mono,
+  },
+  profileCardBadge: {
+    backgroundColor: 'rgba(0, 255, 157, 0.08)',
+    borderRadius: 4,
+    paddingVertical: 2,
+    paddingHorizontal: 6,
+    borderWidth: 0.5,
+    borderColor: 'rgba(0, 255, 157, 0.2)',
+  },
+  profileCardBadgeText: {
+    fontSize: 7,
+    fontWeight: 'bold',
+    color: Theme.colors.success,
+    letterSpacing: 0.5,
+  },
+
+  // Onboarding Stage Cards
+  pipelineStep: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    marginBottom: 10,
+  },
+  stepNum: {
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    backgroundColor: 'rgba(0, 212, 255, 0.1)',
+    borderColor: Theme.colors.primary,
+    borderWidth: 1,
+    color: Theme.colors.primary,
+    fontSize: 9,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    lineHeight: 16,
+    marginRight: 10,
+    marginTop: 2,
+    fontFamily: Theme.fonts.mono,
+  },
+  stepContent: {
+    flex: 1,
+  },
+  stepTitle: {
+    fontSize: 11,
+    fontWeight: 'bold',
+    color: Theme.colors.textWhite,
+    marginBottom: 2,
+  },
+  stepDesc: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    lineHeight: 14,
+  },
+  howToTestPanel: {
+    backgroundColor: 'rgba(0, 212, 255, 0.03)',
+    borderRadius: 8,
+    padding: 12,
+    borderWidth: 1,
+    borderColor: 'rgba(0, 212, 255, 0.12)',
+  },
+  howToStepText: {
+    fontSize: 10,
+    color: Theme.colors.textMuted,
+    lineHeight: 14,
+  },
+
+  // High-fidelity sci-fi biometric HUD brackets
+  hudCorner: {
+    position: 'absolute',
+    width: 16,
+    height: 16,
+    borderColor: '#00D2FF',
+  },
+  hudTopLeft: {
+    top: -4,
+    left: -4,
+    borderTopWidth: 3,
+    borderLeftWidth: 3,
+    borderTopLeftRadius: 8,
+  },
+  hudTopRight: {
+    top: -4,
+    right: -4,
+    borderTopWidth: 3,
+    borderRightWidth: 3,
+    borderTopRightRadius: 8,
+  },
+  hudBottomLeft: {
+    bottom: -4,
+    left: -4,
+    borderBottomWidth: 3,
+    borderLeftWidth: 3,
+    borderBottomLeftRadius: 8,
+  },
+  hudBottomRight: {
+    bottom: -4,
+    right: -4,
+    borderBottomWidth: 3,
+    borderRightWidth: 3,
+    borderBottomRightRadius: 8,
+  },
+  hudSuccess: {
+    borderColor: Theme.colors.success,
+  },
+  hudFailed: {
+    borderColor: Theme.colors.danger,
   }
 });

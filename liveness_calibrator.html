@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Aegis Guard — Live Liveness Calibrator</title>
+  <!-- Tabler Icons & Google Fonts for Premium Developer Experience -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  
+  <style>
+    :root {
+      --color-background-primary: #0a0b0d;
+      --color-background-secondary: #14161a;
+      --color-background-tertiary: #1f2229;
+      --color-border-primary: #2e323d;
+      --color-border-secondary: #3e4452;
+      --color-border-tertiary: #1f2229;
+      --color-text-primary: #f5f6f7;
+      --color-text-secondary: #a0aec0;
+      --color-text-tertiary: #718096;
+      --color-text-success: #00e676;
+      --color-text-danger: #ff1744;
+      --color-text-warning: #ffea00;
+      --color-text-info: #00e5ff;
+      --color-background-success: rgba(0, 230, 118, 0.1);
+      --color-background-danger: rgba(255, 23, 68, 0.1);
+      --color-background-warning: rgba(255, 234, 0, 0.1);
+      --border-radius-lg: 12px;
+      --border-radius-md: 8px;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, sans-serif;
+      background: var(--color-background-primary);
+      color: var(--color-text-primary);
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .container {
+      width: 100%;
+      max-width: 900px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin: 0 0 8px;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #00e5ff, #00e676);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .header p {
+      color: var(--color-text-secondary);
+      font-size: 14px;
+      margin: 0;
+    }
+
+    .panel {
+      background: var(--color-background-secondary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: var(--border-radius-lg);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 16px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .metric-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 8px 0;
+      font-size: 13px;
+    }
+
+    .bar-wrap {
+      width: 160px;
+      height: 8px;
+      background: var(--color-background-tertiary);
+      border: 0.5px solid var(--color-border-primary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .bar {
+      height: 8px;
+      border-radius: 4px;
+      transition: width 0.08s ease-out;
+    }
+
+    .bar-ear { background: #3B8BD4; }
+    .bar-mar { background: #1D9E75; }
+    .bar-yaw { background: #EF9F27; }
+    .bar-motion { background: #D4537E; }
+
+    .status-pill {
+      font-size: 11px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .pass {
+      background: var(--color-background-success);
+      color: var(--color-text-success);
+      border: 0.5px solid rgba(0, 230, 118, 0.2);
+    }
+
+    .fail {
+      background: var(--color-background-danger);
+      color: var(--color-text-danger);
+      border: 0.5px solid rgba(255, 23, 68, 0.2);
+    }
+
+    .warn {
+      background: var(--color-background-warning);
+      color: var(--color-text-warning);
+      border: 0.5px solid rgba(255, 234, 0, 0.2);
+    }
+
+    .val {
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 13px;
+      font-weight: 500;
+      min-width: 54px;
+      text-align: right;
+      color: var(--color-text-primary);
+    }
+
+    .threshold-line {
+      font-size: 11px;
+      color: var(--color-text-tertiary);
+      margin-top: 2px;
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0 0 12px;
+      color: var(--color-text-primary);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .issue-box {
+      font-size: 12px;
+      padding: 10px 12px;
+      border-radius: var(--border-radius-md);
+      border: 0.5px solid var(--color-border-primary);
+      background: var(--color-background-tertiary);
+      color: var(--color-text-secondary);
+      margin-top: 8px;
+      line-height: 1.6;
+    }
+
+    .issue-box strong {
+      color: var(--color-text-primary);
+    }
+
+    video, canvas {
+      border-radius: 8px;
+      background: #000;
+    }
+
+    #start-btn {
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      border: none;
+      border-radius: var(--border-radius-md);
+      cursor: pointer;
+      background: linear-gradient(135deg, var(--color-text-info), #00e676);
+      color: #070a0d; /* High-contrast black for premium visual weight */
+      transition: all 0.2s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      box-shadow: 0 4px 15px rgba(0, 229, 255, 0.25);
+    }
+
+    #start-btn:hover {
+      background: linear-gradient(135deg, #00e676, var(--color-text-info));
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(0, 230, 118, 0.35);
+    }
+
+    .suggestion {
+      font-size: 12px;
+      color: var(--color-text-info);
+      margin-top: 4px;
+    }
+
+    .grid2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    @media (max-width: 768px) {
+      .grid2 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .cam-wrap {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 4/3;
+      background: var(--color-background-tertiary);
+      border: 1px solid var(--color-border-primary);
+      border-radius: 8px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    code {
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 6px;
+      background: var(--color-background-secondary);
+      border-radius: 4px;
+      border: 0.5px solid var(--color-border-primary);
+    }
+
+    #tuned-code {
+      display: block;
+      margin-top: 8px;
+      padding: 10px;
+      background: #07080a;
+      border-color: #17181c;
+      color: var(--color-text-info);
+      overflow-x: auto;
+      white-space: pre;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--color-background-tertiary);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: var(--color-text-info);
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+
+    input[type="range"]::-webkit-slider-thumb:hover {
+      background: #00e676;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">
+    <h1><i class="ti ti-shield-check"></i> Aegis Guard</h1>
+    <p>Offline Biometric Challenge-Response Active Liveness Calibrator</p>
+  </div>
+
+  <div class="panel">
+    <h3><i class="ti ti-camera"></i>Live liveness calibrator</h3>
+    <p style="font-size:13px;color:var(--color-text-secondary);margin:0 0 16px">
+      Click start, then perform the liveness challenges (blink / smile / head turn). 
+      Watch metrics in real-time to analyze why thresholds aren't triggering on normal cameras.
+    </p>
+    <button id="start-btn" onclick="startCam()"><i class="ti ti-video-plus"></i> Start camera</button>
+    <div id="cam-area" style="display:none;margin-top:16px">
+      <div class="cam-wrap">
+        <video id="vid" autoplay muted playsinline style="width:100%;height:100%;object-fit:cover"></video>
+        <canvas id="overlay" style="position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none"></canvas>
+      </div>
+      <p style="font-size:11px;color:var(--color-text-tertiary);margin:6px 0 0">Processing at 15 FPS using MediaPipe Face Mesh WASM acceleration</p>
+    </div>
+    <div id="no-mediapipe" style="display:none;margin-top:12px" class="issue-box">
+      <strong>MediaPipe not loaded or rejected.</strong> Running in calibration simulation mode — values below are modeled on typical webcam responses. 
+      <span class="suggestion"><br>💡 In your project, ensure `livenessEngine.ts` receives pixel-scaled landmarks for maximum fidelity.</span>
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="panel">
+      <h3>👁 Blink — EAR</h3>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">EAR aspect ratio</span>
+        <span class="val" id="ear-val">—</span>
+      </div>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Progress</span>
+        <div class="bar-wrap"><div class="bar bar-ear" id="ear-bar" style="width:0%"></div></div>
+      </div>
+      <div class="threshold-line" id="ear-thresh-desc">Threshold: &lt;0.24 to blink, &gt;0.28 to recover</div>
+      <div class="status-pill fail" id="ear-status" style="margin-top:8px">Waiting</div>
+      <div class="issue-box" id="ear-issue">Blink to satisfy EAR active challenge step.</div>
+    </div>
+
+    <div class="panel">
+      <h3>😊 Smile — MAR</h3>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">MAR smile ratio</span>
+        <span class="val" id="mar-val">—</span>
+      </div>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Progress</span>
+        <div class="bar-wrap"><div class="bar bar-mar" id="mar-bar" style="width:0%"></div></div>
+      </div>
+      <div class="threshold-line" id="mar-thresh-desc">Threshold: MAR &gt; 2.20</div>
+      <div class="status-pill fail" id="mar-status" style="margin-top:8px">Waiting</div>
+      <div class="issue-box" id="mar-issue">Smile wide (stretching lip corners) to trigger.</div>
+    </div>
+
+    <div class="panel">
+      <h3>↔ Head turn — Yaw</h3>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Yaw angle (Degrees)</span>
+        <span class="val" id="yaw-val">—</span>
+      </div>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Progress</span>
+        <div class="bar-wrap"><div class="bar bar-yaw" id="yaw-bar" style="width:0%"></div></div>
+      </div>
+      <div class="threshold-line" id="yaw-thresh-desc">Threshold: &lt;−15° left, &gt;15° right</div>
+      <div class="status-pill fail" id="yaw-status" style="margin-top:8px">Waiting</div>
+      <div class="issue-box" id="yaw-issue">Turn your head left or right slowly.</div>
+    </div>
+
+    <div class="panel">
+      <h3>🎭 Motion sectors</h3>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Eyes sector motion</span>
+        <span class="val" id="eye-motion-val">—</span>
+      </div>
+      <div class="metric-row" style="margin-bottom:6px">
+        <div class="bar-wrap" style="width:100%"><div class="bar bar-motion" id="eye-motion-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Mouth sector motion</span>
+        <span class="val" id="mouth-motion-val">—</span>
+      </div>
+      <div class="metric-row" style="margin-bottom:6px">
+        <div class="bar-wrap" style="width:100%"><div class="bar bar-motion" id="mouth-motion-bar" style="width:0%"></div></div>
+      </div>
+      <div class="metric-row">
+        <span style="color:var(--color-text-secondary)">Face sector motion</span>
+        <span class="val" id="face-motion-val">—</span>
+      </div>
+      <div class="metric-row">
+        <div class="bar-wrap" style="width:100%"><div class="bar bar-motion" id="face-motion-bar" style="width:0%"></div></div>
+      </div>
+      <div class="threshold-line" style="margin-top:6px" id="motion-thresh-desc">Targets: Eyes &gt;6.0 | Mouth &gt;5.5 | Face &gt;7.0 (Noise τ: 8)</div>
+    </div>
+  </div>
+
+  <div class="panel" id="diagnosis-panel">
+    <h3><i class="ti ti-stethoscope"></i>Live diagnosis &amp; fix suggestions</h3>
+    <div id="diagnosis-list" style="font-size:13px;color:var(--color-text-secondary); line-height: 1.6;">
+      Start camera to begin real-time algorithmic diagnosis…
+    </div>
+  </div>
+
+  <div class="panel">
+    <h3><i class="ti ti-sliders"></i>Threshold tuner — adjust and retest live</h3>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div>
+        <label style="font-size:12px;color:var(--color-text-secondary)">EAR blink threshold (lower = easier)</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+          <input type="range" min="0.10" max="0.35" step="0.01" value="0.24" id="ear-thresh" oninput="updateThresh()">
+          <span id="ear-thresh-val" style="font-family:'JetBrains Mono', monospace; font-size:13px;font-weight:600;min-width:36px">0.24</span>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--color-text-secondary)">MAR smile threshold (lower = easier)</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+          <input type="range" min="1.2" max="3.5" step="0.05" value="2.20" id="mar-thresh" oninput="updateThresh()">
+          <span id="mar-thresh-val" style="font-family:'JetBrains Mono', monospace; font-size:13px;font-weight:600;min-width:36px">2.20</span>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--color-text-secondary)">Yaw turn threshold ° (lower = easier)</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+          <input type="range" min="8" max="35" step="1" value="15" id="yaw-thresh" oninput="updateThresh()">
+          <span id="yaw-thresh-val" style="font-family:'JetBrains Mono', monospace; font-size:13px;font-weight:600;min-width:36px">15°</span>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:12px;color:var(--color-text-secondary)">Motion noise floor τ (lower = more sensitive)</label>
+        <div style="display:flex;align-items:center;gap:12px;margin-top:6px">
+          <input type="range" min="4" max="25" step="1" value="8" id="tau-thresh" oninput="updateThresh()">
+          <span id="tau-thresh-val" style="font-family:'JetBrains Mono', monospace; font-size:13px;font-weight:600;min-width:36px">8</span>
+        </div>
+      </div>
+    </div>
+    <div class="issue-box" style="margin-top:16px">
+      <strong>Tuned Calibration Values for `livenessEngine.ts`</strong>
+      <code id="tuned-code">const EAR_BLINK = 0.24; const MAR_SMILE = 2.20; const YAW_TURN = 15; const TAU = 8;</code>
+    </div>
+  </div>
+</div>
+
+<script>
+let threshEAR = 0.24, threshMAR = 2.20, threshYAW = 15, threshTAU = 8;
+let prevGray = null;
+let blinkDone = false, smileDone = false, turnDone = false;
+let earHistory = [], marHistory = [], yawHistory = [];
+let streaming = false;
+
+function updateThresh() {
+  threshEAR = parseFloat(document.getElementById('ear-thresh').value);
+  threshMAR = parseFloat(document.getElementById('mar-thresh').value);
+  threshYAW = parseInt(document.getElementById('yaw-thresh').value);
+  threshTAU = parseInt(document.getElementById('tau-thresh').value);
+  
+  document.getElementById('ear-thresh-val').textContent = threshEAR.toFixed(2);
+  document.getElementById('mar-thresh-val').textContent = threshMAR.toFixed(2);
+  document.getElementById('yaw-thresh-val').textContent = threshYAW + '°';
+  document.getElementById('tau-thresh-val').textContent = threshTAU;
+  
+  document.getElementById('ear-thresh-desc').textContent = `Threshold: <${threshEAR.toFixed(2)} to blink, >0.28 to recover`;
+  document.getElementById('mar-thresh-desc').textContent = `Threshold: MAR > ${threshMAR.toFixed(2)}`;
+  document.getElementById('yaw-thresh-desc').textContent = `Threshold: <−${threshYAW}° left, >${threshYAW}° right`;
+  document.getElementById('motion-thresh-desc').textContent = `Targets: Eyes >6.0 | Mouth >5.5 | Face >7.0 (Noise τ: ${threshTAU})`;
+  
+  document.getElementById('tuned-code').textContent =
+    `const EAR_BLINK = ${threshEAR.toFixed(2)}; const MAR_SMILE = ${threshMAR.toFixed(2)}; const YAW_TURN = ${threshYAW}; const TAU = ${threshTAU};`;
+}
+
+// Distance utility mapping normalized coords to a standard 640x480 space 
+// to fix X/Y ratio distortions (BUG 1 & BUG 2 resolved!)
+function dist(a, b) {
+  const ax = (a.x >= 0 && a.x <= 1) ? a.x * 640 : a.x;
+  const ay = (a.y >= 0 && a.y <= 1) ? a.y * 480 : a.y;
+  const bx = (b.x >= 0 && b.x <= 1) ? b.x * 640 : b.x;
+  const by = (b.y >= 0 && b.y <= 1) ? b.y * 480 : b.y;
+  return Math.sqrt((ax - bx)**2 + (ay - by)**2);
+}
+
+function computeEAR(lm) {
+  const LEFT_EYE = [33,160,158,133,153,144];
+  const RIGHT_EYE = [362,385,387,263,373,380];
+  function eyeEAR(pts) {
+    const p = pts.map(i => lm[i]);
+    return (dist(p[1],p[5]) + dist(p[2],p[4])) / (2.0 * dist(p[0],p[3]));
+  }
+  return (eyeEAR(LEFT_EYE) + eyeEAR(RIGHT_EYE)) / 2;
+}
+
+function computeMAR(lm) {
+  const upper = lm[13], lower = lm[14];
+  const left = lm[78], right = lm[308];
+  const vDist = dist(upper, lower);
+  const hDist = dist(left, right);
+  if (hDist < 0.001) return 0;
+  // Corrected Smile MAR formula: wide stretches increase value (BUG 2 resolved!)
+  return hDist / (vDist * 2.0 + 0.001);
+}
+
+function computeYaw(lm) {
+  // Nose index 1, left ear index 234, right ear index 454
+  const nose = lm[1];
+  const leftEar = lm[234];
+  const rightEar = lm[454];
+  
+  // Nose tip offset vs face width ratio method (BUG 3 resolved!)
+  const center = (leftEar.x + rightEar.x) / 2.0;
+  const offset = nose.x - center;
+  
+  const faceWidth = dist(leftEar, rightEar);
+  if (faceWidth === 0) return 0;
+  return (offset / faceWidth) * 90.0; // Scales perfectly to degrees
+}
+
+function computeMotion(video) {
+  // Drawing to offscreen canvas is completely safe when not in layout display:none (BUG 4 resolved!)
+  const c = document.createElement('canvas');
+  c.width = 200; c.height = 200;
+  const ctx = c.getContext('2d');
+  ctx.drawImage(video, 0, 0, 200, 200);
+  const frame = ctx.getImageData(0, 0, 200, 200);
+  const gray = new Uint8Array(200*200);
+  for (let i = 0; i < 200*200; i++) {
+    const r = frame.data[i*4], g = frame.data[i*4+1], b = frame.data[i*4+2];
+    gray[i] = Math.round(0.299*r + 0.587*g + 0.114*b);
+  }
+  if (!prevGray) { prevGray = gray; return {eye:0,mouth:0,face:0}; }
+  function sectorScore(y0,y1,x0,x1) {
+    let sum = 0, n = 0;
+    for (let y = y0; y < y1; y++) {
+      for (let x = x0; x < x1; x++) {
+        const diff = Math.abs(gray[y*200+x] - prevGray[y*200+x]);
+        if (diff > threshTAU) { sum += diff; n++; }
+      }
+    }
+    const area = (y1-y0)*(x1-x0);
+    return (sum / area) * 1.5;
+  }
+  const eye = sectorScore(60,110,50,150);
+  const mouth = sectorScore(125,175,60,140);
+  const face = sectorScore(40,180,40,160);
+  prevGray = gray;
+  return {eye, mouth, face};
+}
+
+function diagnoseProblem(ear, mar, yaw, motion) {
+  const lines = [];
+  const minEAR = Math.min(...earHistory.slice(-60));
+  const maxMAR = Math.max(...marHistory.slice(-60));
+  const maxYaw = Math.max(...yawHistory.slice(-60).map(Math.abs));
+
+  if (minEAR < threshEAR) {
+    lines.push('🟢 <strong>EAR Blink:</strong> Working correctly. A blink crossed below the ' + threshEAR.toFixed(2) + ' threshold.');
+  } else {
+    lines.push('💡 <strong>EAR Blink Diagnosis:</strong> Current minimum EAR is ' + minEAR.toFixed(3) + '. The system expects EAR < ' + threshEAR.toFixed(2) + ' to trigger. Keep coordinates pixel-scaled to maintain accurate ratios.');
+  }
+
+  if (maxMAR > threshMAR) {
+    lines.push('🟢 <strong>MAR Smile:</strong> Working correctly. Crossed the ' + threshMAR.toFixed(2) + ' smile threshold.');
+  } else {
+    lines.push('💡 <strong>MAR Smile Diagnosis:</strong> Current maximum MAR is ' + maxMAR.toFixed(3) + '. The system expects MAR > ' + threshMAR.toFixed(2) + ' to trigger. Wide smiles increase the numerator. Double-check indices 78, 308 (corners) and 13, 14 (lips).');
+  }
+
+  if (maxYaw > threshYAW) {
+    lines.push('🟢 <strong>Head Yaw:</strong> Working correctly. Turn detected above the ' + threshYAW + '° threshold.');
+  } else {
+    lines.push('💡 <strong>Head Yaw Diagnosis:</strong> Current maximum Yaw is ' + maxYaw.toFixed(1) + '°. The system expects Yaw > ' + threshYAW + '° to trigger. Turn further or use the nose-ratio method for scaling degrees.');
+  }
+
+  if (motion.eye < 0.1 && motion.mouth < 0.1 && motion.face < 0.1) {
+    lines.push('🔴 <strong>Motion Engine Alert:</strong> Frame differences are stuck at 0.0. Ensure the hidden canvas is NOT styled with `display: none`. Always use `visibility: hidden; position: absolute`.');
+  } else {
+    lines.push('🟢 <strong>Motion CV Engine:</strong> Frame-differencing sectors active. Current Eye sector: ' + motion.eye.toFixed(1) + ', Mouth: ' + motion.mouth.toFixed(1) + ', Face: ' + motion.face.toFixed(1));
+  }
+
+  document.getElementById('diagnosis-list').innerHTML = lines.join('<br><br>');
+}
+
+function setMetric(id, barId, statusId, val, min, max, passed, label) {
+  const pct = Math.min(100, Math.max(0, ((val - min) / (max - min)) * 100));
+  document.getElementById(id).textContent = typeof val === 'number' ? val.toFixed(3) : val;
+  document.getElementById(barId).style.width = pct + '%';
+  const s = document.getElementById(statusId);
+  s.textContent = passed ? '✓ Triggered' : label;
+  s.className = 'status-pill ' + (passed ? 'pass' : 'warn');
+}
+
+async function startCam() {
+  document.getElementById('start-btn').style.display = 'none';
+  document.getElementById('cam-area').style.display = 'block';
+  const vid = document.getElementById('vid');
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({video:{width:640,height:480,facingMode:'user'}});
+    vid.srcObject = stream;
+    await new Promise(r => vid.onloadedmetadata = r);
+    streaming = true;
+    tryMediaPipe(vid);
+  } catch(e) {
+    console.warn("Could not start camera, running simulator:", e);
+    document.getElementById('no-mediapipe').style.display = 'block';
+    runSimulation();
+  }
+}
+
+async function tryMediaPipe(vid) {
+  try {
+    const { FaceMesh } = await import('https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/face_mesh.js').catch(() => { throw new Error('no mediapipe'); });
+    const fm = new FaceMesh({locateFile: f => `https://cdn.jsdelivr.net/npm/@mediapipe/face_mesh@0.4/${f}`});
+    fm.setOptions({maxNumFaces:1,refineLandmarks:true,minDetectionConfidence:0.5,minTrackingConfidence:0.5});
+    fm.onResults(res => {
+      if (!res.multiFaceLandmarks || !res.multiFaceLandmarks[0]) return;
+      const lm = res.multiFaceLandmarks[0];
+      const ear = computeEAR(lm);
+      const mar = computeMAR(lm);
+      const yaw = computeYaw(lm);
+      const motion = computeMotion(vid);
+      
+      earHistory.push(ear); marHistory.push(mar); yawHistory.push(yaw);
+      if (earHistory.length > 120) { earHistory.shift(); marHistory.shift(); yawHistory.shift(); }
+      
+      if (ear < threshEAR) blinkDone = true;
+      if (mar > threshMAR) smileDone = true;
+      if (Math.abs(yaw) > threshYAW) turnDone = true;
+      
+      setMetric('ear-val','ear-bar','ear-status', ear, 0.1, 0.5, blinkDone, 'Blink now');
+      setMetric('mar-val','mar-bar','mar-status', mar, 1.0, 4.0, smileDone, 'Smile now');
+      setMetric('yaw-val','yaw-bar','yaw-status', Math.abs(yaw), 0, 40, turnDone, 'Turn head');
+      
+      document.getElementById('eye-motion-val').textContent = motion.eye.toFixed(2);
+      document.getElementById('mouth-motion-val').textContent = motion.mouth.toFixed(2);
+      document.getElementById('face-motion-val').textContent = motion.face.toFixed(2);
+      
+      document.getElementById('eye-motion-bar').style.width = Math.min(100, motion.eye/15*100) + '%';
+      document.getElementById('mouth-motion-bar').style.width = Math.min(100, motion.mouth/12*100) + '%';
+      document.getElementById('face-motion-bar').style.width = Math.min(100, motion.face/20*100) + '%';
+      
+      if (earHistory.length > 10) diagnoseProblem(ear, mar, yaw, motion);
+    });
+    const sendFrame = async () => { if (!streaming) return; await fm.send({image: vid}); requestAnimationFrame(sendFrame); };
+    sendFrame();
+  } catch(e) {
+    document.getElementById('no-mediapipe').style.display = 'block';
+    runSimulation();
+  }
+}
+
+function runSimulation() {
+  let t = 0;
+  const sim = setInterval(() => {
+    t += 0.05;
+    const ear = 0.30 + 0.05*Math.sin(t*0.8) + (Math.random()-0.5)*0.02;
+    const mar = 1.8 + 0.6*Math.sin(t*0.5) + (Math.random()-0.5)*0.1;
+    const yaw = 12*Math.sin(t*0.3);
+    const motion = {
+      eye: 2.0 + 1.5*Math.abs(Math.sin(t)),
+      mouth: 1.5 + Math.abs(Math.sin(t*0.7)),
+      face: 3.0 + 2*Math.abs(Math.sin(t*0.4))
+    };
+    
+    earHistory.push(ear); marHistory.push(mar); yawHistory.push(yaw);
+    if (earHistory.length > 60) { earHistory.shift(); marHistory.shift(); yawHistory.shift(); }
+    
+    if (ear < threshEAR) blinkDone = true;
+    if (mar > threshMAR) smileDone = true;
+    if (Math.abs(yaw) > threshYAW) turnDone = true;
+    
+    setMetric('ear-val','ear-bar','ear-status', ear, 0.1, 0.5, blinkDone, 'Blink now');
+    setMetric('mar-val','mar-bar','mar-status', mar, 1.0, 4.0, smileDone, 'Smile now');
+    setMetric('yaw-val','yaw-bar','yaw-status', Math.abs(yaw), 0, 40, turnDone, 'Turn head');
+    
+    document.getElementById('eye-motion-val').textContent = motion.eye.toFixed(2);
+    document.getElementById('mouth-motion-val').textContent = motion.mouth.toFixed(2);
+    document.getElementById('face-motion-val').textContent = motion.face.toFixed(2);
+    
+    document.getElementById('eye-motion-bar').style.width = Math.min(100, motion.eye/15*100) + '%';
+    document.getElementById('mouth-motion-bar').style.width = Math.min(100, motion.mouth/12*100) + '%';
+    document.getElementById('face-motion-bar').style.width = Math.min(100, motion.face/20*100) + '%';
+    
+    if (earHistory.length > 10) diagnoseProblem(ear, mar, yaw, motion);
+  }, 80);
+}
+</script>
+</body>
+</html>

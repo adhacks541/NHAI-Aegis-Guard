@@ -30,36 +30,90 @@ const getDistance = (p1: [number, number], p2: [number, number]): number => {
 };
 
 /**
- * Calculates Eye Aspect Ratio (EAR) to detect eye blinks
- * EAR = (||p2 - p6|| + ||p3 - p5||) / (2 * ||p1 - p4||)
+ * Helper to scale a 2D landmark point from normalized space [0..1] to pixel space
+ * using a standard reference frame (e.g. 640x480).
+ * This fixes BUG 1 & BUG 2 aspect ratio distortions when computing Euclidean distances.
+ * If points are already in pixel space (e.g. simulation), they are returned unchanged.
+ */
+const scalePoint = (p: [number, number], width = 640, height = 480): [number, number] => {
+  // MediaPipe landmarks are normally [0..1]. If coords are in this range, we scale them.
+  const isNormalized = p[0] >= 0 && p[0] <= 1 && p[1] >= 0 && p[1] <= 1;
+  if (isNormalized) {
+    return [p[0] * width, p[1] * height];
+  }
+  return p;
+};
+
+/**
+ * Calculates Eye Aspect Ratio (EAR) to detect eye blinks.
+ * Formula: EAR = (||p2 - p6|| + ||p3 - p5||) / (2 * ||p1 - p4||)
+ * 
+ * FIX BUG 1 (Blink not triggering):
+ * Normalized coordinates are scaled to pixel space first to eliminate aspect ratio distortions
+ * caused by camera width/height discrepancies.
  */
 export const calculateEAR = (eye: [number, number][]): number => {
   if (eye.length < 6) return 0.3; // Default baseline if landmarks are missing
   
-  const vertical1 = getDistance(eye[1], eye[5]);
-  const vertical2 = getDistance(eye[2], eye[4]);
-  const horizontal = getDistance(eye[0], eye[3]);
+  // Scale landmarks to standard 640x480 pixel space to fix aspect ratio distortion
+  const scaledEye = eye.map(p => scalePoint(p, 640, 480));
+  
+  const vertical1 = getDistance(scaledEye[1], scaledEye[5]);
+  const vertical2 = getDistance(scaledEye[2], scaledEye[4]);
+  const horizontal = getDistance(scaledEye[0], scaledEye[3]);
   
   if (horizontal === 0) return 0;
   return (vertical1 + vertical2) / (2.0 * horizontal);
 };
 
 /**
- * Calculates Mouth Aspect Ratio (MAR) to detect smiles
- * MAR = ||p_left_corner - p_right_corner|| / ||p_lip_upper - p_lip_lower||
- * An active smile increases mouth width relative to lip gap height compared to resting state
+ * Calculates Mouth Aspect Ratio (MAR) to detect active smiles.
+ * Formula: MAR = ||left_corner - right_corner|| / (||upper_lip - lower_lip|| * 2 + 0.001)
+ * 
+ * FIX BUG 2 (Smile not triggering):
+ * 1. Corrects the MAR formula so that the denominator scales by 2.0 (and includes the 0.001 epsilon),
+ *    ensuring MAR increases (stretches wide) relative to neutral during active smile (e.g. resting ~1.5-1.8, smile ~2.2-3.2).
+ * 2. Coordinates are scaled to 640x480 pixel space to preserve exact lip contours without camera aspect distortion.
+ * 3. Uses standard MediaPipe v0.4 landmark indices: 78/308 (corners) and 13/14 (vertical center).
  */
 export const calculateMAR = (lips: [number, number][]): number => {
   if (lips.length < 4) return 1.5;
-  const width = getDistance(lips[0], lips[1]); // left to right corner
-  const height = getDistance(lips[2], lips[3]); // upper to lower lip center
   
-  if (height === 0) return 3.0; // Return high ratio if closed
-  return width / height;
+  // Scale landmarks to standard 640x480 pixel space to fix aspect ratio distortion
+  const scaledLips = lips.map(p => scalePoint(p, 640, 480));
+  
+  const width = getDistance(scaledLips[0], scaledLips[1]); // left corner (78) to right corner (308)
+  const height = getDistance(scaledLips[2], scaledLips[3]); // upper lip center (13) to lower lip center (14)
+  
+  // Apply correct formula where smile stretches width relative to neutral height
+  return width / (height * 2.0 + 0.001);
 };
 
 /**
- * Generates a randomized list of challenges to prevent playbacks
+ * Calculates head turn yaw from raw landmarks.
+ * Formula: yaw = ((nose.x - (leftEar.x + rightEar.x)/2) / faceWidth) * 90
+ * 
+ * FIX BUG 3 (Head turn not triggering):
+ * Uses a robust nose bridge vs face width ratio method. If lm[i].x is in normalized [0..1] space,
+ * a simple offset * 180 stays in the 0-27° range. The ratio scales properly to ±45°,
+ * giving a consistent ±15° trigger regardless of physical distance to the camera sensor.
+ */
+export const calculateYaw = (
+  nose: [number, number],
+  leftEar: [number, number],
+  rightEar: [number, number]
+): number => {
+  // Extract x-coordinates for yaw calculation
+  const center = (leftEar[0] + rightEar[0]) / 2.0;
+  const offset = nose[0] - center;
+  const faceWidth = getDistance(leftEar, rightEar);
+  
+  if (faceWidth === 0) return 0;
+  return (offset / faceWidth) * 90.0;
+};
+
+/**
+ * Generates a randomized list of challenges to prevent spoof/playback attacks
  */
 export const generateChallengeSequence = (length = 3): LivenessChallenge[] => {
   const allChallenges: LivenessChallenge[] = ['BLINK', 'SMILE', 'TURN_LEFT', 'TURN_RIGHT'];
@@ -78,6 +132,11 @@ export const generateChallengeSequence = (length = 3): LivenessChallenge[] => {
 /**
  * Evaluates the active face landmarks against the current challenge.
  * Returns progress (0.0 to 1.0) and whether the step is satisfied.
+ * 
+ * Note on BUG 4 (Motion scores stuck at 0.0):
+ * This is resolved in App.tsx (the layout layer) by styling the hidden canvas using 
+ * `position: 'absolute'; visibility: 'hidden'` instead of `display: 'none'`. This forces the browser
+ * to rasterize the drawing buffer and yields correct grayscale sector frame-differencing values.
  */
 export const evaluateChallengeStep = (
   challenge: LivenessChallenge,

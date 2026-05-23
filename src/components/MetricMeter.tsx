@@ -61,6 +61,8 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: Theme.colors.textMuted,
     fontWeight: '500',
+    flex: 1,
+    marginRight: 8,
   },
   val: {
     fontSize: 12,
